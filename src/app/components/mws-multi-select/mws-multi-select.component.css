@@ -1,0 +1,415 @@
+/* Contenedor principal */
+.mws-multiselect-container {
+    position: relative;
+    width: auto;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Contenedor del input y los badges */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 30px;
+    padding: 2px 4px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: white;
+    cursor: text;
+    transition: all 0.2s ease;
+}
+
+/* Estilo específico para modo único */
+.input-wrapper.single-mode {
+    min-height: 30px;
+    background-color: #fcfcfc;
+}
+
+/* Estilo cuando el componente está siendo usado (tiene items seleccionados) */
+.input-wrapper.has-items {
+    border-color: #28a745;
+}
+
+/* Estilo para modo múltiple cuando tiene items */
+.input-wrapper:not(.single-mode).has-items {
+    border-color: #0d6efd;
+}
+
+.input-wrapper:focus-within {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    outline: 0;
+}
+
+/* Estilo específico para focus en modo único */
+.input-wrapper.single-mode:focus-within {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+}
+
+/* Contenedor de items seleccionados */
+.selected-items {
+    display: inline-flex;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    gap: 2px;
+    padding-right: 20px;
+}
+
+/* WebKit (Chrome, Safari) - Ocultar el scrollbar por defecto */
+.selected-items::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+/* Mostrar el scrollbar al hacer hover (para WebKit) */
+.selected-items:hover::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+}
+
+.selected-items:hover::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+}
+
+.selected-items:hover::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 2px;
+}
+
+.selected-items:hover::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Mostrar el scrollbar al hacer hover en Firefox */
+.selected-items:hover {
+    scrollbar-width: thin;
+}
+
+/* Estilo de cada badge */
+.selected-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 8px;
+    padding: 2px 16px 2px 8px;
+    margin: 2px;
+    font-size: 10px;
+    max-width: calc(100% - 4px);
+}
+
+.selected-badge.single-badge {
+    background-color: #e8f5e9;
+    border: 1px solid #28a745;
+    color: #1b5e20;
+}
+
+.selected-badge:not(.single-badge) {
+    background-color: #e8f0fe;
+    border: 1px solid #0d6efd;
+    color: #1a73e8;
+}
+
+/* Contenedor para el texto */
+.selected-badge span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Botón para remover badge */
+.remove-button {
+    position: absolute;
+    right: 1px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 12px;
+    color: #666;
+    transition: color 0.2s ease;
+    border-radius: 100%;
+    width: 16px;
+    height: 16px;
+    font-size: 14px;
+}
+
+.remove-button:hover {
+    color: #dc3545;
+    background-color: #f8f9fa;
+}
+
+.remove-button:focus {
+    outline: none;
+    color: #dc3545;
+}
+
+.single-badge .remove-button {
+    position: absolute;
+    right: 1px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 12px;
+    color: #666;
+    transition: color 0.2s ease;
+    border-radius: 100%;
+    width: 16px;
+    height: 16px;
+    font-size: 14px;
+}
+
+.single-badge .remove-button:hover {
+    color: #dc3545;
+    background-color: #f8f9fa;
+}
+
+.single-badge .remove-button:focus {
+    outline: none;
+    color: #dc3545;
+}
+
+
+/* Input de búsqueda */
+.search-input {
+    flex: 1 !important;
+    width: 100% !important;
+    padding: 4px !important;
+    border: none !important;
+    outline: none !important;
+    font-size: 12px !important;
+    background: transparent !important;
+    color: #212529 !important;
+}
+
+.search-input::placeholder {
+    color: #6c757d;
+}
+
+.search-input.single-input {
+    padding: 4px !important;
+}
+
+.search-input.single-input:focus {
+    cursor: text;
+}
+
+/* Contenedor del dropdown */
+.dropdown-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    margin-top: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+/* Scrollbar personalizado para el dropdown */
+.dropdown-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dropdown-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.dropdown-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.dropdown-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Indicador de carga */
+.loading-indicator {
+    padding: 16px;
+    text-align: center;
+    color: #666;
+}
+
+/* Mensaje de error */
+.error-message {
+    padding: 16px;
+    text-align: center;
+    color: #dc3545;
+}
+
+/* Mensaje de no resultados */
+.no-results {
+    padding: 16px;
+    text-align: center;
+    color: #666;
+}
+
+/* Lista de resultados */
+.results-list {
+    padding: 8px 0;
+}
+
+/* Item de resultado */
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: #212529;
+    font-size: 12px;
+    gap: 8px;
+}
+
+.result-item:hover {
+    background-color: #f8f9fa;
+}
+
+.result-item.selected {
+    background-color: #e9ecef;
+}
+
+.result-item:focus {
+    outline: none;
+    background-color: #f8f9fa;
+}
+
+.result-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Check icon */
+.check-icon {
+    flex: 0 0 auto;
+    color: #28a745;
+    font-size: 12px;
+    animation: fadeIn 0.15s ease;
+}
+
+.chevron-button {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    height: 28px !important;
+}
+
+.chevron-button:hover {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.chevron-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+}
+
+.chevron-icon {
+    font-size: 12px;
+    color: #6c757d;
+    transition: transform 0.2s ease;
+}
+
+.chevron-button.open .chevron-icon {
+    transform: rotate(180deg);
+}
+
+/* Ajustar el padding del input para dar espacio al chevron */
+.search-input {
+    padding-right: 24px !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .selected-badge {
+        font-size: 12px;
+    }
+
+    .dropdown-container {
+        max-height: 250px;
+    }
+
+    .search-input {
+        font-size: 12px;
+    }
+
+    .input-wrapper.single-mode {
+        min-height: 30px;
+    }
+
+    .selected-badge.single-badge {
+        font-size: 10px;
+    }
+
+    .check-icon {
+        font-size: 10px;
+    }
+
+    .chevron-icon {
+        font-size: 10px;
+    }
+}
+
+/* Estados deshabilitados */
+.input-wrapper.disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+.input-wrapper.disabled .search-input {
+    cursor: not-allowed;
+}
+
+.input-wrapper.disabled .selected-badge {
+    opacity: 0.8;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

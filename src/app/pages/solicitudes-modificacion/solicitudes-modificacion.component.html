@@ -1,0 +1,136 @@
+<app-layout pageTitle="Gestión de Solicitudes">
+    <div class="flex-v p-1">
+        <div class="header mb-1 p-1">
+            <h3>Solicitudes de Modificación</h3>
+        </div>
+
+        <!-- Filtros -->
+        <div class="grid-4 gap-2 mb-2">
+            <!-- Botón de crear solicitud -->
+            <div class="flex justify-end">
+                <tq-button label="Nueva Solicitud" icon="add" type="solid" (btnClick)="crearSolicitud()" />
+            </div>
+        </div>
+
+        <!-- Tabla de solicitudes -->
+        <div class="table-container">
+            <tq-loading *ngIf="!isLoaded()" />
+            <tq-table *ngIf="isLoaded()" class="w-100%" [columns]="columnsData">
+                <tr *ngFor="let row of data()">
+                    <td>{{row.nombreProveedor}}</td>
+                    <td>{{row.nombreComprador}}</td>
+                    <td>{{row.periodo}}</td>
+                    <td>{{row.fechaCreacion}}</td>
+                    <td><tq-tag [label]="row.estado" [color]="estados[row.estado].color"/></td>
+                    <td>{{row.observaciones}}</td>
+                    <td>
+                        <div class="flex gap-1">
+                            <tq-button 
+                                *ngIf="puedeAprobar(row)"
+                                size="small"
+                                icon="check"
+                                type="flat"
+                                title="Aprobar"
+                                (btnClick)="aprobarSolicitud(row)" />
+                            
+                            <tq-button 
+                                *ngIf="puedeVerOrdenes(row)"
+                                size="small"
+                                icon="visibility"
+                                type="flat"
+                                title="Ver Órdenes"
+                                (btnClick)="verOrdenes(row)" />
+                            
+                            <tq-button 
+                                *ngIf="puedeEnviarReporte(row)"
+                                size="small"
+                                icon="send"
+                                type="flat"
+                                title="Enviar Reporte"
+                                (btnClick)="solicitarConfirmacionEnvioReporte(row)" />
+                        </div>
+                    </td>
+                </tr>
+            </tq-table>
+            <tq-paginator *ngIf="isLoaded()" label="Solicitudes" [pageSize]="pageSize()" [total]="totalRegisters()" [page]="currentPage()" (pageChange)="onPageChange($event)" />
+  
+        </div>
+    </div>
+
+    <!-- Modal de confirmación aprobación -->
+    <tq-modal-confirm 
+        #modalConfirm 
+        title="Confirmar Aprobación" 
+        text="¿Está seguro que desea aprobar esta solicitud?"
+        (ok)="confirmarAprobacion()" />
+
+    <!-- Modal de carga -->
+    <tq-modal-loading 
+        #modalLoading 
+        title="Por favor espere" 
+        text="Estamos procesando su solicitud" />
+
+    <!-- Modal de creación -->
+    <tq-modal #modalCreate [blockBackdrop]="true">
+        <div class="min-w-600px">
+            <div class="flex-b mb-2">
+                <h3>Nueva Solicitud de Modificación</h3>
+                <tq-button size="small" icon="close" type="flat" (btnClick)="modalCreate.hide()" />
+            </div>
+            
+            <div class="grid-1 gap-2">
+                <app-mws-multi-select
+                    [multiple]="false"
+                    [service]="filterApiService"
+                    [pageSize]="10"
+                    (selectedItemsChange)="onProveedorChange($event)"
+                    placeholder="Seleccione Proveedor"
+                    url="Proveedor"
+                    [username]="userName" />
+
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <tq-dropdown 
+                            label="Mes" 
+                            [(ngModel)]="selectedMonth" 
+                            [options]="meses"
+                            [required]="true" 
+                            placeholder="Seleccione el mes" />
+                    </div>
+                    <div class="flex-1">
+                        <tq-field 
+                            type="text" 
+                            label="Año" 
+                            [(ngModel)]="selectedYear"
+                            [required]="true"
+                            placeholder="YY"
+                            (input)="onYearChange($event)" />
+                    </div>
+                </div>
+
+                <tq-field
+                    type="text"
+                    label="Observaciones"
+                    [(ngModel)]="nuevaSolicitud.observaciones"
+                    [required]="true"
+                    placeholder="Ingrese las observaciones de la solicitud" />
+
+                <div class="flex justify-end gap-2">
+                    <tq-button
+                        label="Cancelar"
+                        type="flat"
+                        (btnClick)="modalCreate.hide()" />
+                    <tq-button
+                        label="Guardar"
+                        icon="save"
+                        type="solid"
+                        [disabled]="!nuevaSolicitud.proveedorId || !nuevaSolicitud.observaciones"
+                        (btnClick)="guardarSolicitud()" />
+                </div>
+            </div>
+        </div>
+    </tq-modal>
+
+    <tq-modal-confirm #modalConfirmEnvio title="Enviar reporte" (ok)="enviarReporteConsolidado()"
+        text="¿Estás seguro de que desea enviar el reporte consolidado trimestral al proveedor seleccionado?" />
+</app-layout>

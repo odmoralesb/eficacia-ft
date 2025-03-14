@@ -1,0 +1,18 @@
+<tq-cell-wrap-MW>
+  <div class="box w-100%">
+    <tq-button [disabled]="field.disabled ?? false" (btnClick)="open.set(true)" [submit]="false" icon="attach_file"/>
+  </div>
+</tq-cell-wrap-MW>
+<tq-slide-over [minWidth]="400" [maxWidth]="400" [open]="open()" (openChange)="open.set($event)">
+  <div title>
+    <h5 class="border-b pb-025 mb-15">Documentos adjuntos</h5>
+  </div>
+  <div class="p-1 grid gap-1">
+    <ng-container *ngFor="let item of data">
+      <a [href]="item.route" [attr.download]="item.label" class="grid-auto-1 bg-gray-soft p-05 rounded gap-05">
+        <span class="material-symbols-outlined">attach_file</span>
+        <p>{{ item.label }}</p>
+      </a>
+    </ng-container>
+  </div>
+</tq-slide-over>

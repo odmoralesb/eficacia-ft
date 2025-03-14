@@ -1,0 +1,30 @@
+<tq-modal #modalObject>
+    <div>
+        <tq-button size="small" icon="save" type="flat"></tq-button>
+        <tq-field type="text" label="Nombre" [(ngModel)]="parametro.nombre" placeholder="Escriba el valor"></tq-field>
+        <tq-field type="text" label="Descripción" [(ngModel)]="parametro.descripcion"
+            placeholder="Escriba el valor"></tq-field>
+    </div>
+    <div class="flex-v p-1">
+        <div class="header mb-1 p-1">
+            <h3>Configuración</h3>
+        </div>
+        <div class="flex-r mb-1 button-group">
+            <tq-button size="small" icon="add" type="flat" (click)="addDetalle()"></tq-button>
+            <tq-button size="small" icon="remove" type="flat" (click)="removeDetalle()"></tq-button>
+        </div>
+        <div class="table-container">
+            <tq-table class="w-100%" [columns]="columnsConfiguracion" [hoverHighlight]="true" [enableSelection]="true"
+                (selected)="selectAllValue($event)">
+                <tr *ngFor="let detalle of parametro?.detalles">
+                    <td><tq-checkbox [small]="true" [(ngModel)]="detalle.seleccionado" /></td>
+                    <td><tq-field type="text" label="" [(ngModel)]="detalle.nombre"
+                            placeholder="Escriba el nombre de la columna"></tq-field></td>
+                    <td><tq-field type="text" label="" [(ngModel)]="detalle.descripcion"
+                            placeholder="Escriba la descripcion de la columna"></tq-field></td>
+                    <!-- <td><tq-field type="text" label="" [(ngModel)]="detalle.tipo" placeholder="Escriba el valor"></tq-field></td> -->
+                </tr>
+            </tq-table>
+        </div>
+    </div>
+</tq-modal>

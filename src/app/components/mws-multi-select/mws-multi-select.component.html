@@ -1,0 +1,39 @@
+<div class="mws-multiselect-container">
+    <div class="search-container">
+        <div class="input-wrapper" [class.single-mode]="!multiple" [class.has-items]="selectedItems.length > 0">
+            <div class="selected-items">
+                <div class="selected-badge" *ngFor="let item of selectedItems" [title]="item.label" [class.single-badge]="!multiple">
+                    <span>{{ item.label }}</span>
+                    <button type="button" class="remove-button" (click)="removeItem(item)" [attr.aria-label]="multiple ? 'Eliminar' : 'Limpiar selección'">
+                        &times;
+                    </button>
+                </div>
+            </div>
+            <input type="search" class="search-input" [class.single-input]="!multiple" (input)="onSearch($event)" [placeholder]="placeholder" #searchInput>
+            <button class="chevron-button" (click)="onChevronClick($event)" [class.open]="isDropdownOpen">
+                <span class="chevron-icon">▼</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="dropdown-container" *ngIf="isDropdownOpen" (scroll)="onScroll($event)">
+        <div class="loading-indicator" *ngIf="results.length === 0  || loading$.value">
+            Cargando...
+        </div>
+
+        <div class="error-message" *ngIf="error$.value">
+            No se encontraron resultados
+        </div>
+
+        <!-- <div class="no-results" *ngIf="results.length === 0 && !loading$.value">
+            No se encontraron resultados
+        </div> -->
+
+        <div class="results-list">
+            <div class="result-item" *ngFor="let item of results" [class.selected]="isSelected(item)" (click)="selectItem(item)">
+                <span class="result-label">{{ item.label }}</span>
+                <span class="check-icon" *ngIf="isSelected(item)">✓</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,29 @@
+<tq-cell-wrap-MW [validation]="validationText()">
+  <input
+    [ngModel]="value()"
+    (ngModelChange)="value.set($event)"
+    (input)="onInput()"
+    [readonly]="disabled()"
+    [class.error]="validationText()"
+    [class.disabled]="disabled()"
+    [ngStyle]="{'width.px': field.width ? field.width: 150}"
+    type="text" class="small w-100%" [class.required]="field.required">
+</tq-cell-wrap-MW>
+<style>
+  input {
+    font-size: .9rem;
+    border-radius: 2px;
+  }
+
+  .required {
+    background: #FFFDF0;
+  }
+
+  .disabled {
+    background: #EDEFF7;
+  }
+
+  .error {
+    border: 1px solid #B5262977;
+  }
+</style>

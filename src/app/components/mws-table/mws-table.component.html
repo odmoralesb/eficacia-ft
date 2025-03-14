@@ -1,0 +1,106 @@
+<div class="mws-table-container">
+    <!-- Header -->
+    <div class="table-header">
+        <!-- Fixed columns header -->
+        <div class="fixed-columns-header">
+            <div class="table-row">
+                <!-- Checkbox column -->
+                <div class="table-header-cell sticky-column selector" style="width: 30px;">
+                    <input type="checkbox" (change)="onSelectAll($event)">
+                </div>
+                <!-- Fixed columns -->
+                <div *ngFor="let column of fixedColumns(); let i = index" class="table-header-cell sticky-column" [style.width.px]="column.width" [style.left.px]="getFixedColumnLeftPosition(i)">
+                    {{ column.title }}
+                    <div class="resize-handle" (mousedown)="onResizeStart($event, column)"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Scrollable columns header -->
+        <div class="scrollable-columns-header" #scrollableColumnsHeader [ngStyle]="{'margin-right': scrollbarWidth + 'px'}">
+            <div class="table-row">
+                <div *ngFor="let column of scrollableColumns(); let i = index" class="table-header-cell" [style.width.px]="column.width">
+                    {{ column.title }}
+                    <div class="resize-handle" (mousedown)="onResizeStart($event, column)"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="table-body"  [ngStyle]="{'height': height}">
+        <!-- Fixed columns body -->
+        <div class="fixed-columns-body" [ngStyle]="{'padding-bottom': scrollbarWidth + 'px'}">
+            <div class="fixed-columns-body-container" #fixedColumnsBodyContainer>
+                <div *ngFor="let row of visibleData(); let rowIndex = index" class="table-row">
+                    <!-- Checkbox column -->
+                    <div class="table-cell sticky-column selector" style="width: 30px;">
+                        <input type="checkbox" [checked]="isRowSelected(row)" (change)="onRowSelect(row, $event)">
+                    </div>
+                    <!-- Fixed columns data -->
+                    <div *ngFor="let column of fixedColumns(); let i = index" class="table-cell sticky-column" [style.width.px]="column.width" [style.left.px]="getFixedColumnLeftPosition(i)">
+                        <ng-container *ngIf="isCellEditable(column, row); else readOnlyCell">
+                            <ng-container [ngSwitch]="getInputType(column)">
+                                <select *ngSwitchCase="'select'" [ngModel]="getCellValue(row, column)" (ngModelChange)="onCellValueChange(row, column, $event)" class="select-input">
+                                    <option *ngFor="let option of getColumnOptions(column)" [value]="option.value" [disabled]="option.disabled">
+                                        {{option.label}}
+                                    </option>
+                                </select>
+                                <input *ngSwitchCase="'checkbox'" type="checkbox" [checked]="isCellChecked(row, column)" (change)="onCellValueChange(row, column, $event)" [ngClass]="{'editable-input': true, 'checkbox-input': true}">
+                                <input *ngSwitchDefault [type]="getInputType(column)" [value]="getCellValue(row, column)" (input)="onCellValueChange(row, column, $event)" [ngClass]="{'editable-input': true}">
+                            </ng-container>
+                        </ng-container>
+                        <ng-template #readOnlyCell>
+                            <ng-container *ngIf="hasOptions(column); else defaultDisplay">
+                                {{ getOptionLabel(column, getCellValue(row, column)) }}
+                            </ng-container>
+                            <ng-template #defaultDisplay>
+                                <ng-container [ngSwitch]="getInputType(column)">
+                                    <input *ngSwitchCase="'checkbox'" type="checkbox" [checked]="isCellChecked(row, column)" [ngClass]="{'editable-input': true, 'checkbox-input': true}" disabled>
+                                    <span *ngSwitchDefault>{{ getCellValue(row, column) }}</span>
+                                </ng-container>
+                            </ng-template>
+                        </ng-template>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Scrollable columns body -->
+        <div class="scrollable-columns-body" #scrollableColumnsBody>
+            <div *ngFor="let row of visibleData(); let rowIndex = index" class="table-row">
+                <!-- Scrollable columns data -->
+                <div *ngFor="let column of scrollableColumns(); let colIndex = index" class="table-cell" [style.width.px]="column.width" [ngClass]="getCellClasses(rowIndex, colIndex)">
+                    <ng-container *ngIf="!isActionColumn(column); else actionButtons">
+                        <ng-container *ngIf="isCellEditable(column, row); else readOnlyCell">
+                            <ng-container [ngSwitch]="getInputType(column)">
+                                <select *ngSwitchCase="'select'" [ngModel]="getCellValue(row, column)" (ngModelChange)="onCellValueChange(row, column, $event)" class="select-input">
+                                    <option *ngFor="let option of getColumnOptions(column)" [value]="option.value" [disabled]="option.disabled">
+                                        {{option.label}}
+                                    </option>
+                                </select>
+                                <input *ngSwitchCase="'checkbox'" type="checkbox" [checked]="isCellChecked(row, column)" (change)="onCellValueChange(row, column, $event)" [ngClass]="{'editable-input': true, 'checkbox-input': true}">
+                                <input *ngSwitchDefault [type]="getInputType(column)" [value]="getCellValue(row, column)" (input)="onCellValueChange(row, column, $event)" [ngClass]="{'editable-input': true}">
+                            </ng-container>
+                        </ng-container>
+                        <ng-template #readOnlyCell>
+                            <ng-container [ngSwitch]="getInputType(column)">
+                                <select *ngSwitchCase="'select'" [ngModel]="getCellValue(row, column)" (ngModelChange)="onCellValueChange(row, column, $event)" class="select-input" disabled>
+                                    <option *ngFor="let option of getColumnOptions(column)" [value]="option.value" [disabled]="option.disabled">
+                                        {{option.label}}
+                                    </option>
+                                </select>
+                                <input *ngSwitchCase="'checkbox'" type="checkbox" [checked]="isCellChecked(row, column)" [ngClass]="{'editable-input': true, 'checkbox-input': true}" disabled>
+                                <span *ngSwitchDefault>{{ getCellValue(row, column) }}</span>
+                            </ng-container>
+                        </ng-template>
+                    </ng-container>
+                    <ng-template #actionButtons>
+                        <button *ngFor="let action of column.actions" (click)="executeAction(action, row)" class="action-button">
+                            <i *ngIf="action.icon" [class]="action.icon"></i>
+                            {{ action.label }}
+                        </button>
+                    </ng-template> 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

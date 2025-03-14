@@ -1,0 +1,98 @@
+<form *ngIf="form" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <!-- <div class="box-r mb-1 gap-1">  -->
+  <!-- <tq-button *ngIf="selection().length > 0" (btnClick)="modalConfirm.show()" type="default" icon="delete"
+               [submit]="false"
+               label="ELIMINAR REGISTROS"/> -->
+
+  <!-- </div> -->
+  <div class="mb-1 grap-1">
+    <tq-button type="solid" icon="save" label="GUARDAR" />
+  </div>
+
+  <div class="table-container">
+    <div *ngIf="fixedFragment() && form" class="fixed-column">
+      <tq-smart-table-fragment-MW (globalChange)="globalCheckChange($event)" (select)="updateSelection()"
+        [enableSelection]="!disableInsert" (action)="action.emit($event)" [validation]="validation()"
+        (rowClicked)="updateRow($event)" [activeRow]="activeRow()" fragmentClass="fixed-column"
+        [config]="fixedFragment()!" />
+    </div>
+    <div *ngIf="scrollableFragment() && form" class="scrollable-column">
+      <tq-smart-table-fragment-MW (globalChange)="globalCheckChange($event)" (select)="updateSelection()"
+        [enableSelection]="!disableInsert && !fixedFragment()" (action)="action.emit($event)"
+        [validation]="validation()" (rowClicked)="updateRow($event)" [activeRow]="activeRow()"
+        fragmentClass="scrollable-column" [config]="scrollableFragment()!" />
+    </div>
+  </div>
+</form>
+<!-- <div class="box-b"> -->
+  <!-- <div>
+    <tq-button *ngIf="!disableInsert" (btnClick)="addItem()" icon="add" type="flat" label="AÑADIR REGISTRO"/>
+  </div> -->
+  <!-- <ng-content select="[pagination]" />
+</div> -->
+<!-- <tq-modal-action
+  *ngIf="!disableInsert"
+  (ok)="onDelete()" #modalConfirm
+  color="info"
+  icon="delete"
+  (cancel)="modalConfirm.hide()"
+  cancelLabel="CANCELAR"
+  [title]="'Borrar registros'"
+  text="Los registros seleccionados serán eliminados de forma definitiva. Esta acción no se podrá deshacer. ¿Desea eliminar los registros?"
+>
+</tq-modal-action> -->
+<style>
+  form {
+    overflow: visible;
+  }
+
+  .table-container {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    max-width: 100%;
+    overflow: scroll;
+  }
+
+  .fixed-column,
+  .scrollable-column {
+    padding-bottom: 1rem;
+    display: block;
+  }
+
+  .scrollable-column {
+    overflow-x: auto;
+    overflow-y: clip;
+  }
+
+  /* Custom scrollbar styles */
+  .scrollable-column::-webkit-scrollbar {
+    width: 8px;
+    /* Width of the scrollbar */
+    height: 10px;
+    /* Height of the scrollbar */
+  }
+
+  .scrollable-column::-webkit-scrollbar-track {
+    background: var(--color-gray-pale);
+    /* Background color of the track */
+    border-radius: 4px;
+    /* Rounded corners of the track */
+  }
+
+  .scrollable-column::-webkit-scrollbar-thumb {
+    background-color: var(--color-gray-soft);
+    /* Color of the scrollbar thumb */
+    border-radius: 4px;
+    /* Rounded corners of the thumb */
+  }
+
+  .scrollable-column::-webkit-scrollbar-thumb:hover {
+    background-color: #e4e5eb;
+    /* Darker color when hovering over the thumb */
+  }
+
+  .scrollable-column::-webkit-scrollbar-corner {
+    background: #f1f1f1;
+    /* Background color of the corner where the horizontal and vertical scrollbars meet */
+  }
+</style>

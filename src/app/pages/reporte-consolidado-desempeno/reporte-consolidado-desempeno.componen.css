@@ -1,0 +1,27 @@
+.filter-wrapper {
+    display: grid;
+    grid-template-columns: repeat(11, 1fr); /* 3 columnas de igual tamaño */
+    gap: 8px; /* Espacio entre elementos */
+    margin-bottom: 20px;
+    width: 100%; /* Asegura que use todo el ancho disponible */
+    min-height: 53px;
+}
+
+/* Para asegurar que los elementos hijos ocupen todo su espacio */
+.filter-wrapper > * {
+    width: 100%;
+    min-width: 0; /* Previene que los elementos se desborden */
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 768px) {
+    .filter-wrapper {
+        grid-template-columns: repeat(3, 1fr); /* 2 columnas en tablets */
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-wrapper {
+        grid-template-columns: 1fr; /* 1 columna en móviles */
+    }
+}

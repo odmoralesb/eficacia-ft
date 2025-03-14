@@ -1,0 +1,141 @@
+<table class="w-100%" [style.grid-template-columns]="gridTemplateColumns()" [ngClass]="fragmentClass"
+       [class.border]="border">
+  <thead>
+  <tr>
+    <th *ngIf="enableSelection">
+      <tq-cell-checkbox-MW
+        formControlName="selected"
+        (changes)="globalChange.emit($event)"
+        [small]="true"/>
+    </th>
+    <ng-container *ngFor="let item of config.fields; index as i">
+      <th [class.fixed-col]="config.scrollFrom && (i === config.scrollFrom - 2)">
+        <tq-smart-table-label-MW [field]="item"/>
+      </th>
+    </ng-container>
+  </tr>
+  </thead>
+  <tbody formArrayName="data">
+  <ng-container *ngFor="let row of data.controls; index as i">
+    <tr [formGroupName]="i" [class.active]="activeRow===i" (click)="rowClicked.emit(i)">
+      <td *ngIf="enableSelection">
+        <tq-cell-checkbox-MW
+          formControlName="selected"
+          (changes)="updateSelection(row.get('id')?.value, $event)"
+          *ngIf="row.get('id')?.value; else unsaved"/>
+        <ng-template #unsaved>
+          <tq-cell-wrap-MW>
+            <div (click)="softDelete(i)" class="box w-100%">
+              <span class="pointer delete-row material-symbols-outlined color-gray" style="font-size: 20px">close</span>
+            </div>
+          </tq-cell-wrap-MW>
+        </ng-template>
+      </td>
+      <ng-container *ngFor="let field of config.fields">
+        <!-- {{field.disabled}} -->
+        <td> 
+          <ng-container [ngSwitch]="field.type">
+            <!-- Action -->
+            <tq-cell-action-MW
+              (action)="action.emit($event)"
+              *ngSwitchCase="SmartTableTypes.Action"
+              [id]="row.get('id')?.value"
+              [row]="i"
+              [config]="field"
+            />
+
+            <!-- Checkbox -->
+            <tq-cell-checkbox-MW
+              *ngSwitchCase="SmartTableTypes.Checkbox"
+              [formControlName]="field.id"
+              [config]="field"
+            />
+
+            <!-- Text -->
+            <tq-cell-large-text-MW
+              *ngSwitchCase="SmartTableTypes.LargeText"
+              [formControlName]="field.id"
+              [config]="field"
+              [validation]="val() && getFieldErrors(i, field.id)"
+            />
+
+            <!-- Number -->
+            <!-- <tq-cell-number
+              *ngSwitchCase="SmartTableTypes.Number"
+              [formControlName]="field.id"
+              [config]="field"
+              [validation]="val() && getFieldErrors(i, field.id)"
+            /> -->
+
+            <!-- Text -->
+            <tq-cell-text-MW
+              *ngSwitchCase="SmartTableTypes.Text"
+              [formControlName]="field.id"
+              [config]="field"
+              [disable]="row.get('estado')?.value"
+              [validation]="val() && getFieldErrors(i, field.id)"
+            />
+
+            <!-- Select -->
+            <tq-cell-select-MW
+              *ngSwitchCase="SmartTableTypes.Select"
+              [formControlName]="field.id"
+              [config]="field"
+              [validation]="val() && getFieldErrors(i, field.id)"
+            />
+          </ng-container>
+        </td>
+      </ng-container>
+    </tr>
+  </ng-container>
+  </tbody>
+</table>
+<style>
+  .fixed-column td {
+    background: #FAFAFD;
+  }
+
+  table td {
+    height: 48px;
+    padding: 4px;
+    border-bottom: none;
+  }
+
+  table th {
+    height: 38px;
+    padding: 4px;
+  }
+
+  table {
+    overflow: visible;
+    position: relative;
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+
+  table thead, table tr, table tbody {
+    display: contents;
+  }
+
+  table thead {
+    position: sticky;
+    top: 60px;
+  }
+
+  tr.active > td{
+    background: #C6E7FE77;
+  }
+
+  .fixed-col {
+    position: sticky;
+  }
+
+  .delete-row {
+    opacity: .5;
+    transition: .1s;
+  }
+
+  .delete-row:hover {
+    opacity: 1;
+  }
+</style>

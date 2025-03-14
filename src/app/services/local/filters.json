@@ -1,0 +1,40 @@
+{
+  "ejemplo": [
+    {
+      "key": "Filtro 1",
+      "label": "filtro-1",
+      "options": [
+        {
+          "label": "Tipo 1",
+          "value": "tipo-1"
+        },
+        {
+          "label": "Tipo 2",
+          "value": "tipo-2"
+        },
+        {
+          "label": "Tipo 3",
+          "value": "tipo-3"
+        }
+      ]
+    },
+    {
+      "key": "Filtro 2",
+      "label": "filtro-2",
+      "options": [
+        {
+          "label": "Tipo 1",
+          "value": "tipo-1"
+        },
+        {
+          "label": "Tipo 2",
+          "value": "tipo-2"
+        },
+        {
+          "label": "Tipo 3",
+          "value": "tipo-3"
+        }
+      ]
+    }
+  ]
+}

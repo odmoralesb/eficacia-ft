@@ -1,0 +1,52 @@
+<div class="cell-field relative">
+  <div class="box-l relative w-100%" [ngStyle]="{'height.px': heading ? 30 : 40}">
+    <ng-content/>
+  </div>
+  <div *ngIf="validation" class="relative">
+    <div class="icon">
+      <span class="material-symbols-outlined" style="font-size: 16px">info</span>
+    </div>
+    <small>{{ validation }}</small>
+  </div>
+
+</div>
+<style>
+  .cell-field {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .error {
+    height: 20px;
+    background: #fafafa;
+  }
+
+  small {
+    display: none;
+  }
+
+  .icon:hover + small {
+    display: block;
+    max-width: 150px;
+    width: max-content;
+    position: absolute;
+    background: #ffdad7;
+    padding: 5px;
+    border-radius: 2px;
+    right: 20px;
+    top: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  span {
+    color: #B52629;
+    cursor: pointer;
+  }
+
+  small {
+    color: #410004;
+  }
+</style>

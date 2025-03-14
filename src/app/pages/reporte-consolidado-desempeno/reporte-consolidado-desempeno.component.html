@@ -1,0 +1,158 @@
+<app-layout pageTitle="Reporte Consolidado de Desempeño">
+    <div class="filter-wrapper">
+        <app-mws-multi-select  [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'Proveedor')" placeholder="Proveedor" url="ProveedorReporte" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+        <app-mws-multi-select  [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'Compradores')" placeholder="Compradores" url="CompradoresReporte" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+        <app-mws-multi-select  [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'UnidadProductiva')" placeholder="UnidadProductiva" url="UnidadProductivaReporte" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+        <app-mws-multi-select [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'anio')" placeholder="Año" url="calendario" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+        <app-mws-multi-select  [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'Trimestre')" placeholder="Trismetre" url="trimestre" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+        <app-mws-multi-select  [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'Desempenio')" placeholder="Desempeño" url="desempenio" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+        <app-mws-multi-select [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'IndicadorFecha')" placeholder="Indicador fecha" url="IndicadorFechaReporte" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+        <app-mws-multi-select [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'IndicadorCantidad')" placeholder="Indicador cantidad" url="IndicadorCantidadReporte" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+        <app-mws-multi-select [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'IndicadorCalidad')" placeholder="Indicador calidad" url="IndicadorCalidadReporte" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+        <tq-button size="small" icon="clear" type="flat" (btnClick)="limpiarFiltros()" title="Limpiar filtros" />
+        <tq-button class="small-item" size="small" icon="file_save" type="flat" (btnClick)="descargarReporte()" label="Descargar" />
+    </div>
+    <div class="reporte-desempeno overflow-y-scroll">
+        <tq-loading *ngIf="!estaCargado()" />
+        <tq-table *ngIf="estaCargado()" [enableActions]="true" class="w-100%" [columns]="datosColumnas">
+            <ng-template ngFor let-item [ngForOf]="datos()">
+                <tr *ngIf="item.mostrar"
+                    [ngClass]="{'bg-bajo-desempeno': item.calf_desempeno === 'BD' && !item.trimestre, 'bg-alto-desempeno': item.calf_desempeno === 'AD' && !item.trimestre, '!semibold': !item.mes}">
+                    <td>
+                        <b *ngIf="item.mes == null && item.trimestre == null">{{ item.proveedor }}</b>
+                    </td>
+                    <td>
+                        <div *ngIf="item.mes == null">
+                            <toggle-group *ngIf="item.anio" [func]="toggleNivel" [param]="item.keyAgr" />
+                            <b>{{ item.anio }}</b>
+                        </div>
+                    </td>
+                    <td>
+                        <toggle-group *ngIf="item.trimestre" [func]="toggleNivel" [param]="item.keyAgr"
+                            [mostrar]="true" />
+                        <b>{{ item.trimestre }}</b>
+                    </td>
+                    <td>{{ item.mes }}</td>
+                    <td>{{ item.comprador }}</td>
+                    <td>{{ item.up }}</td>
+                    <td align="center">{{ item.cant_oc }}</td>
+                    <td align="center">{{ item.porc_fec_oportuna | percent }}</td>
+                    <td align="center">{{ item.porc_cantidad | percent }}</td>
+                    <td align="center">{{ item.porc_calidad | percent }}</td>
+                    <td align="center">{{ item.porc_cumpl | percent }}</td>
+                    <td align="center">{{ item.calf_desempeno }}</td>
+                    <td align="center"> 
+                        <div *ngIf="tienePermiso">
+                            <tq-button *ngIf="item.trimestre && item.calf_desempeno === 'BD' && !item.planAccion" icon="assignment_add"
+                                (btnClick)="abrirModalPlanAccion(item)" />
+                            <tq-button *ngIf="item.trimestre && item.calf_desempeno === 'BD' && item.planAccion" icon="edit_note"
+                                (btnClick)="abrirModalEditPlanAccion(item)" />
+                        </div>
+                        <tq-button *ngIf="item.mes" icon="expand_circle_right" (btnClick)="abrirDetalle(item)" />
+                    </td>
+                </tr>
+            </ng-template>
+        </tq-table>
+    </div>
+    <tq-modal #modalPlanAccion [blockBackdrop]="true">
+        <div class="min-w-600px">
+            <div class="flex-b mb-1">
+                <div class="flex gap-1" style="align-items: center; width: 100%;">
+                    <h5 style="color: #193A73;">{{datosPlanAccion().nombreProveedor}} - T{{datosPlanAccion().trimestre}} -
+                        {{datosPlanAccion().anio}}</h5>
+
+                    <!-- <tq-button icon="save" label="Ver mas de Plan Acción" (btnClick)="obtenerAllPlanAccion(datosPlanAccion())" size="extra-small"/>
+                    <tq-button icon="save" label="Guardar" (btnClick)="crearPlanAccion()" size="extra-small"/>
+                    <tq-button size="small" icon="close" type="flat" (btnClick)="modalPlanAccion.hide()" size="extra-small"/> -->
+
+                    <div class="flex gap-1" style="margin-left: auto;">
+                        <tq-button icon="save" label="Ver más Plan de Acción" 
+                                   (btnClick)="obtenerAllPlanAccion(datosPlanAccion())" size="extra-small"/>
+                        <tq-button icon="save" label="Guardar" 
+                                   (btnClick)="crearPlanAccion()" size="extra-small"/>
+                        <tq-button size="small" icon="close" type="flat" 
+                                   (btnClick)="modalPlanAccion.hide()" size="extra-small"/>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <tq-field label="Plan de Acción" type="text"  [(ngModel)]="datosPlanAccion().accion" />
+            </div>
+            <div class="mb-3">
+                <tq-field label="Realice sus comentarios sobre el plan de acción con el proveedor" type="text"  [(ngModel)]="datosPlanAccion().comentario" />
+            </div>
+        </div>
+    </tq-modal>
+    <tq-modal #modalObject [blockBackdrop]="true">
+        <div class="min-w-600px">
+            <div class="flex-b mb-1">
+                <h3>{{titleDetalle}}</h3>
+                <div class="flex-r">
+                    <tq-button size="small" icon="close" type="flat" (btnClick)="modalObject.hide()" />
+                </div>
+            </div>
+            <div class="table-ocs mb-3">
+                <tq-table class="w-500px" [columns]="columnsDetalle" [hoverHighlight]="true">
+                    <tr *ngFor="let row of detalles()">
+                        <td align="center">{{row.numOc}}</td>
+                        <td>{{row.comprador}}</td>
+                        <td>{{row.codigo}}</td>
+                        <td>{{row.descripcion}}</td>
+                        <td>{{row.unidadMedida}}</td>
+                        <td>{{row.tipoInsumo}}</td>
+                        <td>{{row.moneda}}</td>
+                        <td>{{row.fechaCreacion|date:'yyyy-MM-dd'}}</td>
+                        <td>{{row.fechaDespacho|date:'yyyy-MM-dd'}}</td>
+                        <td>{{row.fechaRecibido|date:'yyyy-MM-dd'}}</td>
+                        <td align="center">{{row.dias|number}}</td>
+                        <td align="center">{{row.diasAtraso|number}}</td>
+                        <td align="center">{{row.cantidadSolicitada|number}}</td>
+                        <td align="center">{{row.cantidadRecibida|number}}</td>
+                        <td align="center">{{row.cantidadAceptada|number}}</td>
+                        <td align="center">{{row.cantidadDevuelta|number}}</td>
+                        <td align="center">{{row.indicadorFecha|percent}}</td>
+                        <td align="center">{{row.indicadorCantidad|percent}}</td>
+                        <td align="center">{{row.indicadorCalidad|percent}}</td>
+                        <td align="center">{{row.cumplimiento|percent}}</td>
+                        <td>{{row.causal}}</td>
+                        <td>{{row.comentario}}</td>
+                        <td>{{row.consignado}}</td>
+                        <td>{{row.urgencia}}</td>
+                        <td>{{row.numLote}}</td>
+                    </tr>
+                </tq-table>
+            </div>
+        </div>
+    </tq-modal>
+
+    <tq-modal #modalAllPlanAccion [blockBackdrop]="true" >
+        <div class="min-w-600px">
+
+            <div class="flex-b mb-1">
+                <h3>{{datosPlanAccion().nombreProveedor}} - T{{datosPlanAccion().trimestre}} -
+                    {{datosPlanAccion().anio}}</h3>
+                <div class="flex-r">
+                    <tq-button size="small" icon="close" type="flat" (btnClick)="modalAllPlanAccion.hide()" />
+                </div>
+            </div>
+            <div>
+                <tq-search class="mb-1 large-item" placeholder="Buscar por palabra clave" [ngModel]="term"
+                    (ngModelChange)="updateSearchTerm($event)" [disabled]="!isLoaded()"/>
+            </div>
+            <tq-loading *ngIf="!isLoaded()" />
+            <tq-table *ngIf="isLoaded()" class="table w-100%" [columns]="columnsAllPlanAccion" style="line-break: anywhere">
+                <tr *ngFor="let row of dataAllPlanAccion()">
+                    <td>{{row.comprador}}</td>
+                    <td>{{row.accion}}</td>
+                    <td>{{row.comentario}}</td>
+                    <td>{{row.fechaCreacion | date: 'dd/MM/yyyy - HH:mm' }}</td>
+                </tr>
+            </tq-table>
+            <tq-paginator *ngIf="isLoaded()" label="Plan Accion" [pageSize]="pageSize()" [total]="totalRegisters()"
+                [page]="currentPage()" (pageChange)="onPageChange($event)" />
+        </div>
+    </tq-modal>
+    <!-- <tq-modal-confirm #modalConfirm title="Crear plan de acción" (ok)="console.log('ok')"
+        (cancel)="console.log('cancel')" text="¿Está seguro de aprobar los valores de los indicadores?" /> -->
+    <tq-modal-loading #modalLoading title="Por favor espere" text="Estamos procesando su transacción" />
+</app-layout>

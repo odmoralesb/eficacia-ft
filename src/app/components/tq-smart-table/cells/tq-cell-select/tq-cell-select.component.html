@@ -1,0 +1,50 @@
+<tq-cell-wrap-MW [validation]="validation">
+  <div class="relative">
+    <select [ngModel]="value()"
+            (ngModelChange)="onInput($event)"
+            [class.required]="field.required"
+            [class.error]="validation"
+            [class.disabled]="disabled()"
+            [ngStyle]="{'width.px': field.width ? field.width : 150}"
+            class="small w-100%">
+      <option [value]="''" selected hidden></option>
+      <option *ngFor="let option of field.options" [value]="option.value">{{ option.label }}</option>
+    </select>
+    <span class="arrow"></span>
+  </div>
+</tq-cell-wrap-MW>
+<style>
+  select {
+    border-radius: 2px;
+    font-size: .9rem;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  select + .arrow {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-bottom: 2px solid #cdcecf;
+    border-right: 2px solid #cdcecf;
+    right: .75rem;
+    top: calc(20px - 5px);
+    pointer-events: none;
+    transform: rotate(45deg);
+  }
+
+  .error {
+    border: 1px solid #B5262977;
+  }
+
+  .required {
+    background: #FFFDF0;
+  }
+
+  .disabled {
+    pointer-events: none;
+    background: #EDEFF7;
+    color: #000;
+    opacity: 1;
+  }
+</style>

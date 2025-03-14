@@ -1,0 +1,54 @@
+<app-layout pageTitle="Gestión Evaluaciones">
+  <div class="flex-v p-1">
+    <div class="header mb-1 p-1">
+      <h3>Solicitudes de Modificación</h3>
+    </div>
+
+    <div style="display: flex; justify-content: center; align-items: center;">
+      <div style="width: calc(100vw - 140px) ">
+        <tq-button size="small" icon="arrow_back" type="flat" (btnClick)="atras()" label="Atrás" />
+        <tq-button size="small" icon="save" type="flat" (btnClick)="aprobar()" [disabled]="isSaving() || selectedRows.length === 0" label="Aprobar" />
+        <tq-button size="small" icon="priority" type="flat" (btnClick)="cerrarSolicitud()" label="Cerrar solicitud" [disabled]="areAllApproved()" />
+      </div>
+    </div>
+    <div style="display: flex; justify-content: center; align-items: center;" #evaluacionTableContainer>
+      <tq-loading *ngIf="!estaCargado()" />
+      <div *ngIf="estaCargado()" style="width: calc(100vw - 140px)">
+        <app-mws-table [columns]="columns" [data]="dataDetallesAll()"
+          (rowSelectionChange)="onRowSelectionChange($event)" [height]="tableHeight"></app-mws-table>
+      </div>
+    </div>
+  </div>
+
+  <tq-modal #modalObject [blockBackdrop]="true">
+    <div class="min-w-600px">
+      <div class="flex-b mb-1">
+        <h3>{{modalProveedor()}} - {{modalPeriodo()}} - {{modalNumOc()}}</h3>
+        <div class="flex-r">
+          <tq-button size="small" icon="close" type="flat" (btnClick)="modalObject.hide()" />
+        </div>
+      </div>
+      <div class="table-ocs">
+        <tq-table class="w-500px" [columns]="columnsDetalle" [hoverHighlight]="true">
+          <tr *ngFor="let row of detalle()">
+            <td align="center">{{ row.unidadMedida | uppercase }}</td>
+            <td>{{ row.tipoInsumo }}</td>
+            <td align="center">{{ row.moneda | uppercase }}</td>
+            <td><span class="w-max-content">{{ row.fechaCreacion | date:'yyyy-MM-dd' }}</span></td>
+            <td><span class="w-max-content">{{ row.fechaDespacho | date:'yyyy-MM-dd' }}</span></td>
+            <td><span class="w-max-content">{{ row.fechaRecibo | date:'yyyy-MM-dd' }}</span></td>
+            <td align="right">{{ row.diasAtraso }}</td>
+            <td align="right">{{ row.cantidadDevuelta }}</td>
+            <td>{{ row.urgencia }}</td>
+            <td>{{ row.rechazo }}</td>
+            <td>{{ row.consignado }}</td>
+          </tr>
+        </tq-table>
+      </div>
+    </div>
+  </tq-modal>
+
+  <!-- Modal de confirmación cierre -->
+  <tq-modal-confirm #modalConfirm title="Confirmar Cierre" text="¿Está seguro que desea cerra esta solicitud?" (ok)="confirmarCierre()" />
+  <tq-modal-loading #modalLoading title="Por favor espere" text="Estamos procesando su transacción" />
+</app-layout>

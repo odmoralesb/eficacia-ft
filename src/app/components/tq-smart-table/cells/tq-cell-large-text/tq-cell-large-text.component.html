@@ -1,0 +1,65 @@
+<tq-cell-wrap-MW [validation]="validation">
+    <input type="text"
+           class="small w-100%"
+           (click)="onOpen()"
+           readonly
+           [class.error]="validation"
+           [class.disabled]="disabled()"
+           [ngStyle]="{'width.px': field.width ? field.width: 200}"
+           [ngModel]="value()">
+</tq-cell-wrap-MW>
+<tq-slide-over [minWidth]="400" [maxWidth]="400" [open]="open()" (openChange)="open.set($event)">
+  <div title>
+    <h5 class="border-b pb-025 mb-15">{{ field.label }}</h5>
+  </div>
+  <div>
+  <textarea [readonly]="disabled()" #textArea
+            [class.disabled]="disabled()"
+            (input)="onInput()" class="w-100%" [class.active]="open()" [class.required]="field.required"
+            [ngModel]="value()" (ngModelChange)="value.set($event)"></textarea>
+    <div class="box mt-1">
+      <tq-button [submit]="false" label="LISTO" (btnClick)="open.set(false)" icon="done"/>
+    </div>
+  </div>
+</tq-slide-over>
+<style>
+  .required {
+    background: #FFFDF0;
+  }
+  .disabled {
+    background: #EDEFF7;
+  }
+  input {
+    border-radius: 2px;
+    white-space: nowrap; /* Prevents text from wrapping to the next line */
+    overflow: hidden; /* Hides the overflow text */
+    text-overflow: ellipsis;
+    font-size: .9rem;
+  }
+  .error {
+    border: 1px solid #B5262977;
+  }
+
+  textarea {
+    padding: .75rem .75rem;
+    font-size: 1rem;
+    border-color: #DFE1E5;
+    border-radius: 4px;
+    line-height: 1.4;
+    resize: none;
+    min-height: 150px;
+    font-weight: 400;
+  }
+
+  textarea:focus {
+    border-color: #8FCDF8;
+  }
+
+  textarea.resize {
+    resize: vertical;
+  }
+
+  textarea:focus {
+    outline: none;
+  }
+</style>

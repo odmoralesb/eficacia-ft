@@ -1,0 +1,33 @@
+<tq-layout>
+  <div sidebar>
+    <tq-sidebar-alt [nav]="sidebar" [title]="'Evaluación Eficacia Proveedores'"/>
+  </div>
+  <div header>
+    <tq-app-header
+      (back)="navigateBack()"
+      [navigateBack]="showBackArrow()"
+      [title]="pageTitle" [userName]="userName"
+      [userRole]="userRole" (logout)="logout()">
+
+
+      <div actions>
+        <tq-badge [count]="ns.Notificaciones.length">
+        <tq-button icon="notifications" type="solid" (btnClick)="openSlide=true"/>
+        </tq-badge>
+      </div>
+    </tq-app-header>
+  </div>
+  <!-- Alternativamente se puede definir con <router-outlet> -->
+  <ng-content />
+</tq-layout>
+
+<tq-slide-over 
+      [title]="'Notificaciones y alertas'" 
+      [minWidth]="350" 
+      [maxWidth]="500"
+      [(open)]="openSlide"
+  >
+  <div class="pt-1">
+    <tq-alert *ngFor="let notificacion of ns.Notificaciones" class="my-05" style="overflow-wrap: anywhere;" [type]="notificacion.type" text="{{notificacion.text}}"/>
+  </div>
+</tq-slide-over>

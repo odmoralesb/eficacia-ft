@@ -1,0 +1,162 @@
+<app-layout pageTitle="Parametrización">
+    <div class="grid-2 gap-1 mt-3">
+        <div class="flex-v p-1">
+            <div class="header mb-1 p-1">
+                <h3>Parámetros Generales</h3>
+            </div>
+            <div class="inline-flex mb-1 button-group">
+                <tq-search class="mb-1 large-item" placeholder="Buscar por palabra clave" [ngModel]="term"
+                    (ngModelChange)="updateSearchTerm($event)" />
+                <tq-button class="small-item" size="small" icon="new_window" type="flat"
+                    (btnClick)="showCreateModal()" label="Crear" />
+                <tq-button class="small-item" size="small" icon="edit" type="flat" (btnClick)="showEditModal()"
+                    [disabled]="!parametroSeleccionado" label="Editar" />
+            </div>
+            <div class="table-container">
+                <tq-loading *ngIf="!isLoaded()" />
+                <tq-table *ngIf="isLoaded()" class="w-100%" [columns]="columnsData">
+                    <tr *ngFor="let row of data()" (click)="seleccionarParametro(row)"
+                        [ngClass]="{'selected-row': row.id === parametroSeleccionado?.id}">
+                        <td>{{row.nombre}}</td>
+                        <td>{{row.descripcion}}</td>
+                    </tr>
+                </tq-table>
+            </div>
+        </div>
+        <div *ngIf="!parametroSeleccionado" class="box p-1">
+            <h5>Seleccione un parámetro para configurar.</h5>
+        </div>
+        <div *ngIf="parametroSeleccionado" class="flex-v p-1">
+            <div class="header mb-1 p-1">
+                <h3>Detalle: {{parametroSeleccionado.nombre}}</h3>
+            </div>
+            <div class="flex-r mb-1 button-group">
+                <tq-button size="small" icon="save" type="flat" (btnClick)="actualizarParametro(parametroSeleccionado)"
+                    [disabled]="isSaving()" label="Guardar" />
+                <tq-button size="small" icon="add" type="flat" (btnClick)="addValue()" label="Añadir" />
+                <tq-button size="small" icon="remove" type="flat" (btnClick)="removeValue()" label="Remover" />
+            </div>
+            <div class="table-container">
+                <tq-table class="w-100%" [columns]="columnsDetalle" [hoverHighlight]="true" [enableSelection]="true"
+                    (selected)="selectAllValue($event)">
+                    <tr *ngFor="let valor of parametroSeleccionado.valores">
+                        <td><tq-checkbox [small]="true" [(ngModel)]="valor.seleccionado" /></td>
+                        <ng-template ngFor let-d [ngForOf]="parametroSeleccionado.detalles">
+                            <td *ngIf="d.numCampo === 1">
+                                <tq-field *ngIf="d.tipoParametro === 1" type="number" label="" [(ngModel)]="valor.campo1" placeholder="Escriba el valor mínimo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 2" type="number" label="" [(ngModel)]="valor.campo1" placeholder="Escriba el valor máximo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 3" type="number" label="" [(ngModel)]="valor.campo1" placeholder="Escriba el valor"></tq-field>
+                                <!-- <tq-field *ngIf="d.tipoParametro === 4" type="number" label="" [(ngModel)]="valor.campo1" placeholder="Escriba un número entero" step="0" min></tq-field> -->
+                                <input-entero *ngIf="d.tipoParametro === 4"  [(ngModel)]="valor.campo1" size="small"></input-entero>
+                                <tq-field *ngIf="d.tipoParametro === 5" type="text" label="" [(ngModel)]="valor.campo1" placeholder="Escriba el valor"></tq-field>
+                            </td>
+                            <td *ngIf="d.numCampo === 2">
+                                <tq-field *ngIf="d.tipoParametro === 1" type="number" label="" [(ngModel)]="valor.campo2" placeholder="Escriba el valor mínimo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 2" type="number" label="" [(ngModel)]="valor.campo2" placeholder="Escriba el valor máximo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 3" type="number" label="" [(ngModel)]="valor.campo2" placeholder="Escriba el valor"></tq-field>
+                                <input-entero *ngIf="d.tipoParametro === 4"  [(ngModel)]="valor.campo2" size="small"></input-entero>
+                                <tq-field *ngIf="d.tipoParametro === 5" type="text" label="" [(ngModel)]="valor.campo2" placeholder="Escriba el valor"></tq-field>
+                            </td>
+                            <td *ngIf="d.numCampo === 3">
+                                <tq-field *ngIf="d.tipoParametro === 1" type="number" label="" [(ngModel)]="valor.campo3" placeholder="Escriba el valor mínimo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 2" type="number" label="" [(ngModel)]="valor.campo3" placeholder="Escriba el valor máximo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 3" type="number" label="" [(ngModel)]="valor.campo3" placeholder="Escriba el valor"></tq-field>
+                                <input-entero *ngIf="d.tipoParametro === 4"  [(ngModel)]="valor.campo3" size="small"></input-entero>
+                                <tq-field *ngIf="d.tipoParametro === 5" type="text" label="" [(ngModel)]="valor.campo3" placeholder="Escriba el valor"></tq-field>
+                            </td>
+                            <td *ngIf="d.numCampo === 4">
+                                <tq-field *ngIf="d.tipoParametro === 1" type="number" label="" [(ngModel)]="valor.campo4" placeholder="Escriba el valor mínimo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 2" type="number" label="" [(ngModel)]="valor.campo4" placeholder="Escriba el valor máximo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 3" type="number" label="" [(ngModel)]="valor.campo4" placeholder="Escriba el valor"></tq-field>
+                                <input-entero *ngIf="d.tipoParametro === 4"  [(ngModel)]="valor.campo4" size="small"></input-entero>
+                                <tq-field *ngIf="d.tipoParametro === 5" type="text" label="" [(ngModel)]="valor.campo4" placeholder="Escriba el valor"></tq-field>
+                            </td>
+                            <td *ngIf="d.numCampo === 5">
+                                <tq-field *ngIf="d.tipoParametro === 1" type="number" label="" [(ngModel)]="valor.campo5" placeholder="Escriba el valor mínimo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 2" type="number" label="" [(ngModel)]="valor.campo5" placeholder="Escriba el valor máximo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 3" type="number" label="" [(ngModel)]="valor.campo5" placeholder="Escriba el valor"></tq-field>
+                                <input-entero *ngIf="d.tipoParametro === 4"  [(ngModel)]="valor.campo5" size="small"></input-entero>
+                                <tq-field *ngIf="d.tipoParametro === 5" type="text" label="" [(ngModel)]="valor.campo5" placeholder="Escriba el valor"></tq-field>
+                            </td>
+                            <td *ngIf="d.numCampo === 6">
+                                <tq-field *ngIf="d.tipoParametro === 1" type="number" label="" [(ngModel)]="valor.campo6" placeholder="Escriba el valor mínimo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 2" type="number" label="" [(ngModel)]="valor.campo6" placeholder="Escriba el valor máximo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 3" type="number" label="" [(ngModel)]="valor.campo6" placeholder="Escriba el valor"></tq-field>
+                                <input-entero *ngIf="d.tipoParametro === 4"  [(ngModel)]="valor.campo6" size="small"></input-entero>
+                                <tq-field *ngIf="d.tipoParametro === 5" type="text" label="" [(ngModel)]="valor.campo6" placeholder="Escriba el valor"></tq-field>
+                            </td>
+                            <td *ngIf="d.numCampo === 7">
+                                <tq-field *ngIf="d.tipoParametro === 1" type="number" label="" [(ngModel)]="valor.campo7" placeholder="Escriba el valor mínimo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 2" type="number" label="" [(ngModel)]="valor.campo7" placeholder="Escriba el valor máximo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 3" type="number" label="" [(ngModel)]="valor.campo7" placeholder="Escriba el valor"></tq-field>
+                                <input-entero *ngIf="d.tipoParametro === 4"  [(ngModel)]="valor.campo7" size="small"></input-entero>
+                                <tq-field *ngIf="d.tipoParametro === 5" type="text" label="" [(ngModel)]="valor.campo7" placeholder="Escriba el valor"></tq-field>
+                            </td>
+                            <td *ngIf="d.numCampo === 8">
+                                <tq-field *ngIf="d.tipoParametro === 1" type="number" label="" [(ngModel)]="valor.campo8" placeholder="Escriba el valor mínimo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 2" type="number" label="" [(ngModel)]="valor.campo8" placeholder="Escriba el valor máximo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 3" type="number" label="" [(ngModel)]="valor.campo8" placeholder="Escriba el valor"></tq-field>
+                                <input-entero *ngIf="d.tipoParametro === 4"  [(ngModel)]="valor.campo8" size="small"></input-entero>
+                                <tq-field *ngIf="d.tipoParametro === 5" type="text" label="" [(ngModel)]="valor.campo8" placeholder="Escriba el valor"></tq-field>
+                            </td>
+                            <td *ngIf="d.numCampo === 9">
+                                <tq-field *ngIf="d.tipoParametro === 1" type="number" label="" [(ngModel)]="valor.campo9" placeholder="Escriba el valor mínimo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 2" type="number" label="" [(ngModel)]="valor.campo9" placeholder="Escriba el valor máximo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 3" type="number" label="" [(ngModel)]="valor.campo9" placeholder="Escriba el valor"></tq-field>
+                                <input-entero *ngIf="d.tipoParametro === 4"  [(ngModel)]="valor.campo9" size="small"></input-entero>
+                                <tq-field *ngIf="d.tipoParametro === 5" type="text" label="" [(ngModel)]="valor.campo9" placeholder="Escriba el valor"></tq-field>
+                            </td>
+                            <td *ngIf="d.numCampo === 10">
+                                <tq-field *ngIf="d.tipoParametro === 1" type="number" label="" [(ngModel)]="valor.campo10" placeholder="Escriba el valor mínimo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 2" type="number" label="" [(ngModel)]="valor.campo10" placeholder="Escriba el valor máximo"></tq-field>
+                                <tq-field *ngIf="d.tipoParametro === 3" type="number" label="" [(ngModel)]="valor.campo10" placeholder="Escriba el valor"></tq-field>
+                                <input-entero *ngIf="d.tipoParametro === 4"  [(ngModel)]="valor.campo10" size="small"></input-entero>
+                                <tq-field *ngIf="d.tipoParametro === 5" type="text" label="" [(ngModel)]="valor.campo10" placeholder="Escriba el valor"></tq-field>
+                            </td>
+                        </ng-template>
+                    </tr>
+                </tq-table>
+            </div>
+        </div>
+    </div>
+    <tq-modal #modalObject [blockBackdrop]="true">
+        <div class="min-w-600px">
+            <div class="flex-b">
+                <h2 *ngIf="!modalParametro().id">Crear Parámetro </h2>
+                <h2 *ngIf="!!modalParametro().id">Editar Parámetro</h2>
+                <tq-button size="small" icon="close" type="flat" (btnClick)="modalObject.hide()" />
+            </div>
+            <div>
+                <tq-button class="mb-1" size="small" icon="save" type="flat" (btnClick)="saveModal()" label="Guardar" />
+                <tq-field type="text" label="Nombre" [(ngModel)]="modalParametro().nombre" [required]="true"
+                    placeholder="Escriba un nombre para el parámetro"></tq-field>
+                <tq-field type="text" label="Descripción" [(ngModel)]="modalParametro().descripcion" [required]="true"
+                    placeholder="Escriba una descripción para el parámetro"></tq-field>
+            </div>
+            <div class="flex-v p-1">
+                <div class="header mb-1 p-1">
+                    <h3>Configuración</h3>
+                </div>
+                <div class="flex-r mb-1">
+                    <tq-button size="small" icon="add" type="flat" (click)="addDetalle()" label="Añadir" />
+                    <tq-button size="small" icon="remove" type="flat" (click)="removeDetalle()" label="Remover" />
+                </div>
+                <div class="table-container">
+                    <tq-table class="w-100%" [columns]="columnsConfiguracion" [hoverHighlight]="true"
+                        [enableSelection]="true" (selected)="selectAllModalValue($event)">
+                        <tr *ngFor="let detalle of modalParametro().detalles">
+                            <td><tq-checkbox [small]="true" [(ngModel)]="detalle.seleccionado" /></td>
+                            <td><tq-field type="text" label="" [(ngModel)]="detalle.nombre" [required]="true"
+                                    placeholder="Escriba el nombre de la columna"></tq-field></td>
+                            <td><tq-field type="text" label="" [(ngModel)]="detalle.descripcion" [required]="true"
+                                    placeholder="Escriba la descripción de la columna"></tq-field></td>
+                            <td><tq-input-select [(ngModel)]="detalle.tipoParametro" [options]="tipoParametroOptions"
+                                    [required]="true" placeholder="Seleccione un tipo de parámetro" size="small" /></td>
+                        </tr>
+                    </tq-table>
+                </div>
+            </div>
+        </div>
+    </tq-modal>
+    <tq-modal-loading #modalLoading title="Por favor espere" text="Estamos procesando su transacción" />
+</app-layout>

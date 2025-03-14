@@ -1,0 +1,22 @@
+<app-layout pageTitle="Gestión Evaluaciones">
+    <div class="flex-v p-1">
+        <div class="header mb-1 p-1">
+            <h3>Cambiar estado Evaluación</h3>
+        </div>
+        <div class="grid-3 gap-1">
+            <tq-loading *ngIf="!isLoaded()" />
+            <div class="grid-1 gap-2" *ngIf="isLoaded()">
+                <tq-dropdown label="Comprador" [(ngModel)]="compradorId" [options]="compradores()" [required]="true"
+                    placeholder="Seleccione un comprador" />
+                <tq-dropdown label="Proveedor" [(ngModel)]="proveedorId" [options]="proveedores()" [required]="true"
+                    placeholder="Seleccione un proveedor" />
+                <tq-field type="text" label="Periodo" [(ngModel)]="periodo" [required]="true"
+                    placeholder="Escriba un periodo. Ejemplo: ENE-24" />
+                <tq-button label="Cambiar" icon="change_circle" type="solid" (btnClick)="modalConfirm.show()" />
+            </div>
+        </div>
+    </div>
+    <tq-modal-confirm #modalConfirm title="Confirmación cambio de estado de evaluaciones enviadas" (ok)="cambiarEstadoEvaluacion()"
+        text="¿Estás seguro de que desea realizar el cambio de estado de las evaluaciones enviadas?" />
+    <tq-modal-loading #modalLoading title="Por favor espere" text="Estamos procesando su transacción" />
+</app-layout>

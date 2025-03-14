@@ -1,0 +1,62 @@
+<app-layout pageTitle="Gestión Evaluaciones">
+  <div class="filter-wrapper">
+    <app-mws-multi-select [multiple]="true" [service]="filterApiService" [pageSize]="12" (selectedItemsChange)="onSelectionChange($event, 'Calendario')" placeholder="Periodo" url="Perido" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+    <app-mws-multi-select [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'Proveedor')" placeholder="Proveedor" url="Proveedor" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+    <app-mws-multi-select [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'Compradores')" placeholder="Comprador" url="Compradores" [username]="userName" [reset]="shouldReset()" *ngIf="tienePermiso"></app-mws-multi-select>
+    <app-mws-multi-select [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'UnidadProductiva')" placeholder="Unidad productiva" url="UnidadProductiva" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+    <app-mws-multi-select [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'IndicadorFecha')" placeholder="Indicador fecha" url="IndicadorFecha" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+    <app-mws-multi-select [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'IndicadorCantidad')" placeholder="Indicador cantidad" url="IndicadorCantidad" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+    <app-mws-multi-select [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'IndicadorCalidad')" placeholder="Indicador calidad" url="IndicadorCalidad" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+    <app-mws-multi-select [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'IndicadorDesempeno')" placeholder="Indicador Desempeño" url="IndicadorDesempeno" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+    <app-mws-multi-select [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'Consignado')" placeholder="Consignado" url="Consignado" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+    <app-mws-multi-select  [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'OC')" placeholder="Orden Compra" url="OC" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+    <app-mws-multi-select [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'CodigoInsumo')" placeholder="Codigo Insumo" url="CodigoInsumo" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+
+    <tq-button size="small" icon="clear" type="flat" (btnClick)="limpiarFiltros()" title="Limpiar filtros" />
+  </div>
+  <div class="flex-a"> 
+    <gauge-chart [value]="promedioIndicadorFecha()" [title]="'Indicador Fecha'" [maxValue]="3" [splitNumber]="3"/>
+    <gauge-chart [value]="promedioIndicadorCantidad()" [title]="'Indicador Cantidad'" [maxValue]="3" [splitNumber]="3"/>
+    <gauge-chart [value]="promedioIndicadorCalidad()" [title]="'Indicador Calidad'" [maxValue]="4" [splitNumber]="4"/>
+    <gauge-chart [value]="promedioIndicadorCumplimiento()" [title]="'Indicador Desempeño'" />
+  </div>
+  <div style="display: flex; justify-content: center; align-items: center;">
+    <div style="width: 90vw;">
+      <tq-button size="small" icon="save" type="flat" (btnClick)="aprobar()" [disabled]="isSaving() || selectedRows.length === 0" label="Aprobar" />
+    </div>
+  </div>
+  <div style="display: flex; justify-content: center; align-items: center;" #evaluacionTableContainer>
+    <tq-loading *ngIf="!estaCargado()" />
+    <div *ngIf="estaCargado()" style="width: 90vw;">
+      <app-mws-table [columns]="columns" [data]="dataDetallesAll()" (rowSelectionChange)="onRowSelectionChange($event)" [height]="tableHeight"></app-mws-table>
+    </div>
+  </div>
+  <tq-modal #modalObject [blockBackdrop]="true">
+    <div class="min-w-600px">
+      <div class="flex-b mb-1">
+        <h3>{{modalProveedor()}} - {{modalPeriodo()}} - {{modalNumOc()}}</h3>
+        <div class="flex-r">
+          <tq-button size="small" icon="close" type="flat" (btnClick)="modalObject.hide()" />
+        </div>
+      </div>
+      <div class="table-ocs">
+          <tq-table class="w-500px" [columns]="columnsDetalle" [hoverHighlight]="true">
+            <tr *ngFor="let row of detalle()">
+              <td align="center">{{ row.unidadMedida | uppercase }}</td>
+              <td>{{ row.tipoInsumo }}</td>
+              <td align="center">{{ row.moneda | uppercase }}</td>
+              <td><span class="w-max-content">{{ row.fechaCreacion | date:'yyyy-MM-dd' }}</span></td>
+              <td><span class="w-max-content">{{ row.fechaDespacho | date:'yyyy-MM-dd' }}</span></td>
+              <td><span class="w-max-content">{{ row.fechaRecibo | date:'yyyy-MM-dd' }}</span></td>
+              <td align="right">{{ row.diasAtraso }}</td>
+              <td align="right">{{ row.cantidadDevuelta }}</td>
+              <td>{{ row.urgencia }}</td>
+              <td>{{ row.rechazo }}</td>
+              <td>{{ row.consignado }}</td>
+            </tr>
+          </tq-table> 
+      </div>
+    </div>
+  </tq-modal>
+  <tq-modal-loading #modalLoading title="Por favor espere" text="Estamos procesando su transacción" />
+</app-layout>

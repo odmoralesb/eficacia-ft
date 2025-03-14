@@ -1,0 +1,49 @@
+<app-layout pageTitle="Parametrización">
+  <div class="grid-1 gap-2 mt-3 ml-4 mr-4">
+    <div class="flex-v p-1">
+      <div class="header mb-1 p-1">
+        <h3>Causales</h3>
+      </div>
+      <div class="inline-flex mb-1 button-group">
+        <tq-search class="mb-1 large-item" placeholder="Buscar por palabra clave" [ngModel]="term" (ngModelChange)="updateSearchTerm($event)"
+          [disabled]="!isLoaded()" />
+        <tq-button class="small-item" label="Crear" size="small" icon="new_window" type="flat" (btnClick)="showCreateModal()" />
+        <tq-button class="small-item" label="Editar" size="small" icon="edit" type="flat" (btnClick)="showEditModal()"
+          [disabled]="!causalSeleccionado" />
+      </div>
+      <div class="table-container">
+        <tq-loading *ngIf="!isLoaded()" />
+        <tq-table *ngIf="isLoaded()" class="w-100%" [columns]="columnsData">
+          <tr *ngFor="let row of data()" (click)="seleccionarCausal(row)"
+            [ngClass]="{'selected-row':row.codigoCausal === causalSeleccionado?.codigoCausal}">
+            <td>{{row.codigoCausal}}</td>
+            <td>{{row.codigoCausal}} - {{row.nombre}}</td>
+            <td>{{row.descripcion}}</td>
+            <td>{{row.activo ? 'Sí' : 'No'}}</td>
+          </tr>
+        </tq-table>
+        <tq-paginator *ngIf="isLoaded()" label="Causal" [pageSize]="pageSize()" [total]="totalRegisters()"
+          [page]="currentPage()" (pageChange)="onPageChange($event)" />
+      </div>
+    </div>
+  </div>
+  <tq-modal-loading #modalLoading title="Por favor espere" text="Estamos procesando su transacción" />
+  <tq-modal #modalObject [blockBackdrop]="true">
+    <div class="min-w-600px">
+      <div class="flex-b">
+        <h2 *ngIf="!modalCausal().id">Crear Causal </h2>
+        <h2 *ngIf="!!modalCausal().id">Editar Causal</h2>
+        <tq-button size="small" icon="close" type="flat" (btnClick)="modalObject.hide()" />
+      </div>
+      <div>
+        <tq-button size="small" icon="save" type="flat" (btnClick)="saveModal()" label="Guardar" />
+        <tq-field type="number" label="Código" [(ngModel)]="modalCausal().codigoCausal" [required]="true" placeholder="Escriba un nombre para la causal" class="pt-2 pb-1" />
+        <tq-field type="text" label="Nombre" [(ngModel)]="modalCausal().nombre" [required]="true" placeholder="Escriba un nombre para la causal" class="pt-1 pb-1" />
+        <tq-field type="text" label="Descripción" [(ngModel)]="modalCausal().descripcion" placeholder="Escriba una descripción para la causal" class="pt-1 pb-2" />
+        <div class="pt-1 pb-2" *ngIf="!!modalCausal().id">
+          <tq-checkbox [(ngModel)]="modalCausal().activo" label="Activo" [color]="true" (changes)="onActivoChange($event)"></tq-checkbox>
+        </div>
+      </div>
+    </div>
+  </tq-modal>
+</app-layout>

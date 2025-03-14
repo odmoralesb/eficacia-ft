@@ -1,0 +1,52 @@
+<app-layout pageTitle="Parametrización">
+    <div class="grid-2 gap-2 mt-3 ml-4 mr-4">
+        <div class="flex-v p-1">
+            <div class="header mb-1 p-1">
+                <h3>Proveedores</h3>
+            </div>
+            <div class="inline-flex mb-1 button-group">
+                <tq-search class="mb-1 large-item" placeholder="Buscar por palabra clave" [ngModel]="term"
+                    (ngModelChange)="updateSearchTerm($event)" [disabled]="!isLoaded()"/>
+            </div>
+            <div class="table-container">
+                <tq-loading *ngIf="!isLoaded()" />
+                <tq-table *ngIf="isLoaded()" class="w-100%" [columns]="columnsData">
+                    <tr *ngFor="let row of data()" (click)="seleccionarProveedor(row)"
+                        [ngClass]="{'selected-row':row.id === proveedorSeleccionado?.id}">
+                        <td>{{row.nit}}</td>
+                        <td>{{row.razonSocial}}</td>
+                    </tr>
+                </tq-table>
+                <tq-paginator *ngIf="isLoaded()" label="Proveedor" [pageSize]="pageSize()" [total]="totalRegisters()"
+                    [page]="currentPage()" (pageChange)="onPageChange($event)" />
+            </div>
+        </div>
+        <div *ngIf="!proveedorSeleccionado" class="box p-1">
+            <h5>Seleccione un proveedor para configurar su lista de correos.</h5>
+        </div>
+        <div *ngIf="proveedorSeleccionado" class="flex-v p-1">
+            <div class="header mb-1 p-1">
+                <h3>Listado de correos: {{proveedorSeleccionado.razonSocial}}</h3>
+            </div>
+            <div class="flex-r mb-1 button-group">
+                <tq-button size="small" icon="save" type="flat" (btnClick)="modalConfirm.show()"
+                    [disabled]="isSaving()" label="Guardar" />
+                <tq-button size="small" icon="add" type="flat" (btnClick)="addCorreo()" label="Añadir" />
+                <tq-button size="small" icon="remove" type="flat" (btnClick)="removeCorreo()" label="Remover" />
+            </div>
+            <div class="table-container">
+                <tq-table class="w-100%" [columns]="columnsCorreos" [hoverHighlight]="true" [enableSelection]="true"
+                    (selected)="selectAllValue($event)">
+                    <tr *ngFor="let c of proveedorSeleccionado.listaCorreoElectronico">
+                        <td><tq-checkbox [small]="true" [(ngModel)]="c.seleccionado" /></td>
+                        <td><tq-field type="email" label="" [(ngModel)]="c.correo"
+                                placeholder="Escriba una dirección de correo electrónico" /></td>
+                    </tr>
+                </tq-table>
+            </div>
+        </div>
+    </div>
+    <tq-modal-confirm #modalConfirm title="Confirmación de Cambios en el Proveedor" (ok)="actualizarProveedor(proveedorSeleccionado)"
+        text="¿Estás seguro de que deseas realizar estos cambios en el proveedor {{proveedorSeleccionado?.razonSocial}}?" />
+    <tq-modal-loading #modalLoading title="Por favor espere" text="Estamos procesando su transacción" />
+</app-layout>

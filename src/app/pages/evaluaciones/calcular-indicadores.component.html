@@ -1,0 +1,10 @@
+<app-layout pageTitle="Calcular Evaluaciones">
+    <div class="grid-4">
+        <div class="flex-v">
+            <tq-field type="text" label="Periodo" [(ngModel)]="periodo" [required]="true"
+                placeholder="Escriba un periodo. Ejemplo: ENE-24" />
+            <tq-button label="Calcular" type="flat" (click)="calcularIndicadores()" />
+        </div>
+    </div>
+    <tq-modal-loading #modalLoading title="Por favor espere" text="Estamos procesando su transacción" />
+</app-layout>

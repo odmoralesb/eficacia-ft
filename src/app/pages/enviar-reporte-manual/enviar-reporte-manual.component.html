@@ -1,0 +1,21 @@
+<app-layout pageTitle="Reportes">
+    <div class="flex-v p-1">
+        <div class="header mb-1 p-1">
+            <h3>Enviar Reporte Consolidado Trimestral </h3>
+        </div>
+        <div class="grid-3 gap-1">
+            <tq-loading *ngIf="!estaCargado()" />
+            <div class="grid-1 gap-2" *ngIf="estaCargado()">
+                <tq-dropdown label="Proveedor" [(ngModel)]="proveedorId" [options]="proveedores()" [required]="true"
+                    placeholder="Seleccione un proveedor" />
+                <tq-dropdown label="Año" [(ngModel)]="anio" [required]="true" [options]="anios()" [required]="true"
+                    placeholder="Seleccione un año" />
+                
+                <tq-button label="Enviar" icon="send" type="solid" (btnClick)="modalConfirm.show()" />
+            </div>
+        </div>
+    </div>
+    <tq-modal-confirm #modalConfirm title="Enviar reporte" (ok)="enviarReporteConsolidado()"
+        text="¿Estás seguro de que desea enviar el reporte consolidado trimestral al proveedor seleccionado?" />
+    <tq-modal-loading #modalLoading title="Por favor espere" text="Estamos procesando su transacción" />
+</app-layout>

@@ -1,0 +1,28 @@
+<div [ngClass]="getSize()" class="box-l gap-025" [ngStyle]="field.width ? {'min-width.px': field.width} : {}" [title]="field.id" style="height: 30px">
+  <span class="material-symbols-outlined color-lite" style="font-size: 18px">{{ getIcon() }}</span>
+  <span class="label">{{ field.label }}<span *ngIf="field.required" class="required">*</span>
+  </span>
+</div>
+<style>
+  .label{
+    font-size: .9rem;
+    font-weight: 600;
+  }
+  div.sm{
+    min-width: 50px;
+  }
+  div.md{
+    min-width: 100px;
+  }
+  div.lg{
+    min-width: 150px;
+  }
+  div.xl{
+    min-width: 200px;
+  }
+  .required {
+    color: #B52629;
+    margin-left: 3px;
+    font-size: 12px;
+  }
+</style>

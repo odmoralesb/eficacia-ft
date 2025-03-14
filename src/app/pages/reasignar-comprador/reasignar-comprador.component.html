@@ -1,0 +1,63 @@
+<app-layout pageTitle="Gestión Evaluaciones">
+    <div class="flex-v p-1">
+        <div class="header mb-1 p-1">
+            <h3>Reasignar Comprador</h3>
+        </div>
+        <div class="grid-3 gap-1">
+            <tq-loading *ngIf="!isLoaded()" />
+            <div class="grid-1 gap-2" *ngIf="isLoaded()">
+                <!-- Campos de compradores -->
+                <tq-dropdown 
+                    label="Comprador Ausente" 
+                    [(ngModel)]="compradorRetirado" 
+                    [options]="usuarios()"
+                    [required]="true" 
+                    placeholder="Seleccione el comprador a reemplazar" />
+                    
+                <tq-dropdown 
+                    label="Comprador a asignar" 
+                    [(ngModel)]="compradorNuevo" 
+                    [options]="usuarios()"
+                    [required]="true" 
+                    placeholder="Seleccione el comprador a asignar" />
+
+                <!-- Campos de período -->
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <tq-dropdown 
+                            label="Mes" 
+                            [(ngModel)]="selectedMonth" 
+                            [options]="meses"
+                            [required]="true" 
+                            placeholder="Seleccione el mes" />
+                    </div>
+                    <div class="flex-1">
+                        <tq-field 
+                            type="text" 
+                            label="Año" 
+                            [(ngModel)]="selectedYear"
+                            [required]="true"
+                            placeholder="YY"
+                            (input)="onYearChange($event)" />
+                    </div>
+                </div>
+
+                <tq-button 
+                    label="Reasignar" 
+                    icon="change_circle" 
+                    type="solid" 
+                    [disabled]="!selectedMonth || !selectedYear || !compradorRetirado || !compradorNuevo"
+                    (btnClick)="modalConfirm.show()" />
+            </div>
+        </div>
+    </div>
+    <tq-modal-confirm 
+        #modalConfirm 
+        title="Confirmación reasignación de comprador" 
+        (ok)="reasignarComprador()"
+        [text]="'¿Estás seguro de que desea realizar la reasignación para el periodo ' + getPeriodo() + '?'" />
+    <tq-modal-loading 
+        #modalLoading 
+        title="Por favor espere" 
+        text="Estamos procesando su transacción" />
+</app-layout>

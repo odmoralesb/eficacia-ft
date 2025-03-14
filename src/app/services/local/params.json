@@ -1,0 +1,18 @@
+{
+  "params": {
+    "tipoDocumento": [
+      {
+        "label": "Cédula Ciudadanía",
+        "value": "cedula-ciudadania"
+      },
+      {
+        "label": "Cédula Extranjería",
+        "value": "cedula-extranjeria"
+      },
+      {
+        "label": "Pasaporte",
+        "value": "pasaporte"
+      }
+    ]
+  }
+}

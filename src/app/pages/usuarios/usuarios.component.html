@@ -1,0 +1,213 @@
+<app-layout pageTitle="Gestión de Usuarios">
+    <div class="flex-v p-1">
+        <div class="header mb-1 p-1">
+            <h3>Gestión de Usuarios</h3>
+        </div>
+
+        <!-- Botón de crear -->
+        <div class="grid-4 gap-2 mb-2">
+            <div class="flex justify-end">
+                <tq-button 
+                    *ngIf="puedeEditar()"
+                    label="Nuevo Usuario" 
+                    icon="add" 
+                    type="solid" 
+                    (btnClick)="crearUsuario()" />
+            </div>
+        </div>
+
+        <!-- Tabla de usuarios -->
+        <div class="table-container">
+            <tq-loading *ngIf="!isLoaded()" />
+            <tq-table *ngIf="isLoaded()" class="w-100%" [columns]="columnsData">
+                <tr *ngFor="let row of data()">
+                    <td>{{row.nombre}} {{row.apellido}}</td>
+                    <td>{{row.nombreUsuario}}</td>
+                    <td>{{row.correoElectronico}}</td>
+                    <td>{{row.rol?.nombre}}</td>
+                    <td>{{row.jefeDirecto?.nombreCompleto}}</td>
+                    <td>
+                        <div class="flex gap-1">
+                            <tq-button 
+                                *ngIf="puedeEditar()"
+                                size="small"
+                                icon="edit"
+                                type="flat"
+                                title="Editar"
+                                (btnClick)="editarUsuario(row)" />
+                            
+                            <tq-button 
+                                *ngIf="puedeEditar()"
+                                size="small"
+                                icon="delete"
+                                type="flat"
+                                title="Eliminar"
+                                (btnClick)="eliminarUsuario(row)" />
+                        </div>
+                    </td>
+                </tr>
+            </tq-table>
+            <tq-paginator 
+                *ngIf="isLoaded()" 
+                label="Usuarios" 
+                [pageSize]="pageSize()" 
+                [total]="totalRegisters()" 
+                [page]="currentPage()" 
+                (pageChange)="onPageChange($event)" />
+        </div>
+    </div>
+
+    <!-- Modal de confirmación eliminación -->
+    <tq-modal-confirm 
+        #modalConfirm 
+        title="Confirmar Eliminación" 
+        text="¿Está seguro que desea eliminar este usuario?"
+        (ok)="confirmarEliminacion()" />
+
+    <!-- Modal de carga -->
+    <tq-modal-loading 
+        #modalLoading 
+        title="Por favor espere" 
+        text="Estamos procesando su solicitud" />
+
+    <!-- Modal de creación -->
+    <tq-modal #modalCreate [blockBackdrop]="true">
+        <div class="min-w-600px">
+            <div class="flex-b mb-2">
+                <h3>Nuevo Usuario</h3>
+                <tq-button size="small" icon="close" type="flat" (btnClick)="modalCreate.hide()" />
+            </div>
+            
+            <div class="grid-1 gap-2">
+                <tq-field
+                    type="text"
+                    label="Nombre de Usuario"
+                    [(ngModel)]="nuevoUsuario.nombreUsuario"
+                    [required]="true"
+                    placeholder="Ingrese el nombre de usuario" />
+
+                <tq-field
+                    type="text"
+                    label="Nombre"
+                    [(ngModel)]="nuevoUsuario.nombre"
+                    [required]="true"
+                    placeholder="Ingrese el nombre" />
+
+                <tq-field
+                    type="text"
+                    label="Apellido"
+                    [(ngModel)]="nuevoUsuario.apellido"
+                    [required]="true"
+                    placeholder="Ingrese el apellido" />
+
+                <tq-field
+                    type="email"
+                    label="Correo Electrónico"
+                    [(ngModel)]="nuevoUsuario.correoElectronico"
+                    [required]="true"
+                    placeholder="Ingrese el correo electrónico" />
+
+                <tq-dropdown 
+                    label="Rol"
+                    [required]="true"
+                    [(ngModel)]="nuevoUsuario.rolId"
+                    [options]="roles"
+                    (change)="onRolChange($event)"
+                    placeholder="Seleccione un rol" />
+
+                <tq-dropdown 
+                    label="Jefe Directo"
+                    class="selector-jefe"
+                    [(ngModel)]="nuevoUsuario.jefeDirectoId"
+                    [options]="jefes"
+                    [disabled]="!esRolComprador()"
+                    [required]="esRolComprador()"
+                    placeholder="Seleccione un jefe directo" />
+
+                <div class="flex justify-end gap-2">
+                    <tq-button
+                        label="Cancelar"
+                        type="flat"
+                        (btnClick)="modalCreate.hide()" />
+                    <tq-button
+                        label="Guardar"
+                        icon="save"
+                        type="solid"
+                        [disabled]="!validarUsuario()"
+                        (btnClick)="guardarUsuario()" />
+                </div>
+            </div>
+        </div>
+    </tq-modal>
+
+    <!-- Modal de edición -->
+    <tq-modal #modalEdit [blockBackdrop]="true">
+        <div class="min-w-600px">
+            <div class="flex-b mb-2">
+                <h3>Editar Usuario</h3>
+                <tq-button size="small" icon="close" type="flat" (btnClick)="modalEdit.hide()" />
+            </div>
+            
+            <div class="grid-1 gap-2">
+                <tq-field
+                    type="text"
+                    label="Nombre de Usuario"
+                    [(ngModel)]="nuevoUsuario.nombreUsuario"
+                    [required]="true"
+                    [disabled]="true"
+                    placeholder="Ingrese el nombre de usuario" />
+
+                <tq-field
+                    type="text"
+                    label="Nombre"
+                    [(ngModel)]="nuevoUsuario.nombre"
+                    [required]="true"
+                    placeholder="Ingrese el nombre" />
+
+                <tq-field
+                    type="text"
+                    label="Apellido"
+                    [(ngModel)]="nuevoUsuario.apellido"
+                    [required]="true"
+                    placeholder="Ingrese el apellido" />
+
+                <tq-field
+                    type="email"
+                    label="Correo Electrónico"
+                    [(ngModel)]="nuevoUsuario.correoElectronico"
+                    [required]="true"
+                    placeholder="Ingrese el correo electrónico" />
+
+                <tq-dropdown 
+                    label="Rol"
+                    [required]="true"
+                    [(ngModel)]="nuevoUsuario.rolId"
+                    [options]="roles"
+                    (change)="onRolChange($event)"
+                    placeholder="Seleccione un rol" />
+
+                <tq-dropdown 
+                    label="Jefe Directo"
+                    class="selector-jefe"
+                    [(ngModel)]="nuevoUsuario.jefeDirectoId"
+                    [options]="jefes"
+                    [disabled]="!esRolComprador()"
+                    [required]="esRolComprador()"
+                    placeholder="Seleccione un jefe directo" />
+
+                <div class="flex justify-end gap-2">
+                    <tq-button
+                        label="Cancelar"
+                        type="flat"
+                        (btnClick)="modalEdit.hide()" />
+                    <tq-button
+                        label="Guardar"
+                        icon="save"
+                        type="solid"
+                        [disabled]="!validarUsuario()"
+                        (btnClick)="guardarUsuario()" />
+                </div>
+            </div>
+        </div>
+    </tq-modal>
+</app-layout>

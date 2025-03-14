@@ -1,0 +1,91 @@
+<tq-cell-wrap-MW [heading]="small">
+  <div class="box w-100%">
+    <label class="label flex pointer relative">
+      <input hidden
+             class="self-start"
+             type="checkbox"
+             [disabled]="disabled()"
+             [ngModel]="value()"
+             (ngModelChange)="updateValue($event)">
+      <span class="checkmark color"></span>
+    </label>
+  </div>
+</tq-cell-wrap-MW>
+<style>
+  input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  .checkmark {
+    height: 18px;
+    width: 18px;
+    min-height: 18px;
+    min-width: 18px;
+    border-radius: 3px;
+    border: 2px solid #DFE1E5;
+    position: relative;
+    top: 0;
+    background: white;
+  }
+
+  input:checked + .checkmark {
+    background-color: var(--color-gray-soft);
+    border: 2px solid var(--color-gray-soft);
+    position: relative;
+  }
+
+  input:checked + .checkmark:after {
+    content: '';
+    width: 4px;
+    height: 9px;
+    left: 4px;
+    border-radius: 2px;
+    top: 0;
+    border-right: 2px solid var(--color-gray);
+    border-bottom: 2px solid var(--color-gray);
+    transform: rotate(45deg);
+    position: absolute;
+  }
+
+  input:checked + .checkmark.color:after {
+    border-right: 2px solid var(--color-primary-fore);
+    border-bottom: 2px solid var(--color-primary-fore);
+  }
+
+  input:checked + .checkmark.color {
+    background-color: var(--color-accent-soft);
+    border: 2px solid var(--color-accent-soft);
+  }
+
+  .checkmark:before {
+    content: '';
+    display: block;
+    min-height: 36px;
+    min-width: 36px;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 50%;
+    position: absolute;
+    top: calc(50% - 18px);
+    left: calc(50% - 18px);
+    opacity: 0;
+    transition: .001s ease-in-out all;
+  }
+
+  .span-label {
+    user-select: none;
+  }
+
+  .label:active .checkmark:before {
+    opacity: 1;
+  }
+
+  .label span {
+    color: var(--color-default);
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+</style>
