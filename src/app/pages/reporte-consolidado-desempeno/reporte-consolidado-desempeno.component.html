@@ -3,7 +3,7 @@
         <app-mws-multi-select  [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'Proveedor')" placeholder="Proveedor" url="ProveedorReporte" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
         <app-mws-multi-select  [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'Compradores')" placeholder="Compradores" url="CompradoresReporte" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
         <app-mws-multi-select  [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'UnidadProductiva')" placeholder="UnidadProductiva" url="UnidadProductivaReporte" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
-        <app-mws-multi-select [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'anio')" placeholder="Año" url="calendario" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
+        <app-mws-multi-select [multiple]="true" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'anio')" placeholder="Año" url="calendario" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
         <app-mws-multi-select  [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'Trimestre')" placeholder="Trismetre" url="trimestre" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
         <app-mws-multi-select  [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'Desempenio')" placeholder="Desempeño" url="desempenio" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
         <app-mws-multi-select [multiple]="false" [service]="filterApiService" [pageSize]="10" (selectedItemsChange)="onSelectionChange($event, 'IndicadorFecha')" placeholder="Indicador fecha" url="IndicadorFechaReporte" [username]="userName" [reset]="shouldReset()"></app-mws-multi-select>
@@ -12,7 +12,7 @@
         <tq-button size="small" icon="clear" type="flat" (btnClick)="limpiarFiltros()" title="Limpiar filtros" />
         <tq-button class="small-item" size="small" icon="file_save" type="flat" (btnClick)="descargarReporte()" label="Descargar" />
     </div>
-    <div class="reporte-desempeno overflow-y-scroll">
+    <div class="reporte-desempeno overflow-y-scroll" infiniteScroll (scrolled)="cargarMasDatos()" [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [scrollWindow]="false">
         <tq-loading *ngIf="!estaCargado()" />
         <tq-table *ngIf="estaCargado()" [enableActions]="true" class="w-100%" [columns]="datosColumnas">
             <ng-template ngFor let-item [ngForOf]="datos()">
@@ -53,6 +53,7 @@
                 </tr>
             </ng-template>
         </tq-table>
+        <div *ngIf="noMoreData">No hay más datos</div> 
     </div>
     <tq-modal #modalPlanAccion [blockBackdrop]="true">
         <div class="min-w-600px">

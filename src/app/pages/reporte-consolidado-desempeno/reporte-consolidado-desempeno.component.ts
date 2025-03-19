@@ -17,6 +17,7 @@ import { MultiSelectOption, MWSMultiSelectComponent } from "src/app/components/m
 import { FilterApiService } from 'src/app/services/filters.service';
 import { BehaviorSubject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { NotificacionesService } from 'src/app/services/notificaciones.service';
+import { InfiniteScrollDirective } from 'ngx-infinite-scroll'; 
 
 
 interface FiltersMW {
@@ -33,7 +34,16 @@ interface FiltersMW {
 @Component({
     selector: 'app-reporte-consolidado-desempeno',
     standalone: true,
-    imports: [CommonModule, LayoutComponent, TqElementsModule, TqRichtextComponent, FormsModule, ToogleGroup,MWSMultiSelectComponent],
+    imports: [
+        CommonModule, 
+        LayoutComponent, 
+        TqElementsModule, 
+        TqRichtextComponent, 
+        FormsModule, 
+        ToogleGroup,
+        MWSMultiSelectComponent, 
+        InfiniteScrollDirective
+    ],
     templateUrl: './reporte-consolidado-desempeno.component.html',
     styleUrls: ['./reporte-consolidado-desempeno.componen.css']
 })
@@ -121,6 +131,13 @@ export class ReporteConsolidadoDesempenoComponent {
         IndicadorCantidad: [] as MultiSelectOption[],
         IndicadorCalidad: [] as MultiSelectOption[]});
 
+
+
+    offset = 1;
+    limit = 40; 
+    loading = false;
+    noMoreData = false;
+
     constructor(
         protected reporteService: ReporteService,
         protected planAccionService: PlanAccionService,
@@ -136,13 +153,14 @@ export class ReporteConsolidadoDesempenoComponent {
         this.userName = userInfo ? userInfo.name : this.userName;
 
         this.obtenerFiltros();
-        this.obtenerDatosReporte();     
+        this.cargarDatosIniciales();     
     }
 
-    onSeleccionarFiltros = (event: any) => {
-        this.filtroSeleccionado.set(event);
-        this.obtenerDatosReporte();
-    }
+    // onSeleccionarFiltros = (event: any) => {
+    //     this.filtroSeleccionado.set(event);
+    //     this.obtenerDatosReporte();
+    // }
+
     toggleFiltros = (): void => this.filtrosMostrados.set(!this.filtrosMostrados());
     toggleNivel = (supKey: string, mostrar: boolean) => {
         supKey = supKey.replaceAll("|", "\\|").replaceAll("-", "\\-");
@@ -169,6 +187,8 @@ export class ReporteConsolidadoDesempenoComponent {
             });
 
     }
+
+    /*
     obtenerDatosReporte = (): void => {
         this.estaCargado.set(false);
         const selectedFilters = this.selectedFilters();
@@ -176,7 +196,8 @@ export class ReporteConsolidadoDesempenoComponent {
         const proveedores = selectedFilters?.Proveedor?.map(x => x.value) ?? [];
         const compradores = selectedFilters?.Compradores?.map(x => x.value) ?? [];
         const unidadProductiva = selectedFilters?.UnidadProductiva?.map(x => x.value)?? [];
-        const anio = selectedFilters?.anio?.map(x => x.value)?.[0] ?? '';
+        // const anio = selectedFilters?.anio?.map(x => x.value)?.[0] ?? '';
+        const anio = selectedFilters?.anio?.map(x => x.value) ?? [];
         const trimetre = selectedFilters?.Trimestre?.map(x => x.value)?? [];
         const desempeno = selectedFilters?.Desempenio?.map(x => x.value)?.[0] ?? '';
         const indicadorCalidad = selectedFilters?.IndicadorCalidad?.map(x => x.value)?.[0] ?? '';
@@ -232,6 +253,170 @@ export class ReporteConsolidadoDesempenoComponent {
             }
         });
     }
+    */
+
+
+    //Carga los datos iniciales
+    cargarDatosIniciales() {
+        this.loading = true;
+        this.offset = 1;
+        this.noMoreData = false;
+        this.datos.set([]); // Limpiar los datos existentes
+
+        const selectedFilters = this.selectedFilters();
+
+        const proveedores = selectedFilters?.Proveedor?.map(x => x.value) ?? [];
+        const compradores = selectedFilters?.Compradores?.map(x => x.value) ?? [];
+        const unidadProductiva = selectedFilters?.UnidadProductiva?.map(x => x.value) ?? [];
+        // const anio = selectedFilters?.anio?.map(x => x.value)?.[0] ?? '';  // Ya no se usa el primer año
+        const anio = selectedFilters?.anio?.map(x => x.value) ?? []; // Se obtienen todos los años seleccionados
+        const trimetre = selectedFilters?.Trimestre?.map(x => x.value) ?? [];
+        const desempeno = selectedFilters?.Desempenio?.map(x => x.value)?.[0] ?? '';
+        const indicadorCalidad = selectedFilters?.IndicadorCalidad?.map(x => x.value)?.[0] ?? '';
+        const indicadorCantidad = selectedFilters?.IndicadorCantidad?.map(x => x.value)?.[0] ?? '';
+        const indicadorFecha = selectedFilters?.IndicadorFecha?.map(x => x.value)?.[0] ?? '';
+
+
+        this.reporteService.obtenerDatosReporteConsolidado(
+            this.userName,
+            proveedores,
+            compradores,
+            unidadProductiva,
+            anio,
+            trimetre,
+            desempeno,
+            indicadorCalidad,
+            indicadorCantidad,
+            indicadorFecha,
+            this.offset,
+            this.limit
+        ).subscribe({
+            next: (res) => {
+
+                let dataAgr = Agrupar(res.result.filas, res.result.minimoPuntaje);
+                
+                dataAgr.sort((a, b) => {
+                    const calfParentA = dataAgr.find(x => x.keyAgr === a.keyParent)?.calf_desempeno ?? a.calf_desempeno;
+                    const calfParentB = dataAgr.find(x => x.keyAgr === b.keyParent)?.calf_desempeno ?? b.calf_desempeno;
+                
+                    if (calfParentA !== calfParentB) {
+                        return calfParentB.localeCompare(calfParentA);
+                    }
+
+                    return a.proveedor.localeCompare(b.proveedor);
+                });
+                
+                const param = this.selectedFilters()?.Desempenio.map(x => x.value)?.[0] ?? '';
+                if(param){
+                    var padreid = '';
+
+                    dataAgr = dataAgr.filter(row => {
+                        if(row.keyAgr && !row.keyParent && row.calf_desempeno === param){
+                            padreid = row.keyAgr;
+                        }
+                        return (row.calf_desempeno === param && row.keyAgr && !row.keyParent) || row.keyParent === padreid;
+                    });
+                }
+                //this.datos.set(dataAgr);
+                this.datos.update(currentData => [...currentData, ...dataAgr]);
+
+                this.estaCargado.set(true);
+                this.loading = false;
+                if (res.result.filas.length < this.limit) {
+                    this.noMoreData = true; // Ya no hay más datos
+                }
+            },
+            error: (e) => {
+                // Manejar el error ...
+                this.loading = false;
+            }
+        });
+    }  
+    
+    
+    //Metodo para cargar mas datos
+    cargarMasDatos() {
+        if (this.loading || this.noMoreData) {
+            return; // Evitar múltiples llamadas simultáneas o si ya no hay datos
+        }
+
+        this.loading = true;
+        this.offset += 1; // Incrementar el offset
+
+        const selectedFilters = this.selectedFilters();
+
+        const proveedores = selectedFilters?.Proveedor?.map(x => x.value) ?? [];
+        const compradores = selectedFilters?.Compradores?.map(x => x.value) ?? [];
+        const unidadProductiva = selectedFilters?.UnidadProductiva?.map(x => x.value) ?? [];
+        // const anio = selectedFilters?.anio?.map(x => x.value)?.[0] ?? '';  // Ya no se usa el primer año
+        const anio = selectedFilters?.anio?.map(x => x.value) ?? []; // Se obtienen todos los años seleccionados
+        const trimetre = selectedFilters?.Trimestre?.map(x => x.value) ?? [];
+        const desempeno = selectedFilters?.Desempenio?.map(x => x.value)?.[0] ?? '';
+        const indicadorCalidad = selectedFilters?.IndicadorCalidad?.map(x => x.value)?.[0] ?? '';
+        const indicadorCantidad = selectedFilters?.IndicadorCantidad?.map(x => x.value)?.[0] ?? '';
+        const indicadorFecha = selectedFilters?.IndicadorFecha?.map(x => x.value)?.[0] ?? '';
+
+        this.reporteService.obtenerDatosReporteConsolidado(
+            this.userName,
+            proveedores,
+            compradores,
+            unidadProductiva,
+            anio,
+            trimetre,
+            desempeno,
+            indicadorCalidad,
+            indicadorCantidad,
+            indicadorFecha,
+            this.offset,
+            this.limit
+        ).subscribe({
+            next: (res) => {
+
+                let dataAgr = Agrupar(res.result.filas, res.result.minimoPuntaje);
+                
+                dataAgr.sort((a, b) => {
+                    const calfParentA = dataAgr.find(x => x.keyAgr === a.keyParent)?.calf_desempeno ?? a.calf_desempeno;
+                    const calfParentB = dataAgr.find(x => x.keyAgr === b.keyParent)?.calf_desempeno ?? b.calf_desempeno;
+                
+                    if (calfParentA !== calfParentB) {
+                        return calfParentB.localeCompare(calfParentA);
+                    }
+
+                    return a.proveedor.localeCompare(b.proveedor);
+                });
+                
+                const param = this.selectedFilters()?.Desempenio.map(x => x.value)?.[0] ?? '';
+                if(param){
+                    var padreid = '';
+
+                    dataAgr = dataAgr.filter(row => {
+                        if(row.keyAgr && !row.keyParent && row.calf_desempeno === param){
+                            padreid = row.keyAgr;
+                        }
+                        return (row.calf_desempeno === param && row.keyAgr && !row.keyParent) || row.keyParent === padreid;
+                    });
+                }
+
+                //this.datos.set(dataAgr);
+                this.datos.update(currentData => [...currentData, ...dataAgr]);
+
+                this.loading = false;
+                if (res.result.filas.length < this.limit) {
+                    this.noMoreData = true; // Ya no hay más datos
+                }
+
+            },
+            error: (e) => {
+                // Manejar el error ...
+                this.loading = false;
+            }
+        });
+    }    
+    
+    
+    
+
+
     descargarReporte = (): void => {
         this.modalLoading.show();
 
@@ -240,7 +425,8 @@ export class ReporteConsolidadoDesempenoComponent {
         const proveedores = selectedFilters?.Proveedor?.map(x => x.value) ?? [];
         const compradores = selectedFilters?.Compradores?.map(x => x.value) ?? [];
         const unidadProductiva = selectedFilters?.UnidadProductiva?.map(x => x.value)?? [];
-        const anio = selectedFilters?.anio?.map(x => x.value)?.[0] ?? '';
+        // const anio = selectedFilters?.anio?.map(x => x.value)?.[0] ?? '';
+        const anio = selectedFilters?.anio?.map(x => x.value) ?? [];
         const trimetre = selectedFilters?.Trimestre?.map(x => x.value)?? [];
         const desempeno = selectedFilters?.Desempenio?.map(x => x.value)?.[0] ?? '';
         const indicadorCalidad = selectedFilters?.IndicadorCalidad?.map(x => x.value)?.[0] ?? '';
@@ -329,14 +515,6 @@ export class ReporteConsolidadoDesempenoComponent {
         this.modalPlanAccion.show();
     }
 
-    // updateComment = ($event: any) => {
-    //     console.debug($event);
-    //     if (this.datosPlanAccion() !== null) {
-    //         this.datosPlanAccion()?.comentario = $event
-    //     }
-
-    // }
-
     crearPlanAccion = (): void => {
         this.modalLoading.show();
         if (!this.datosPlanAccion().Id) {
@@ -383,8 +561,8 @@ export class ReporteConsolidadoDesempenoComponent {
     }
 
     onSelectionChange(items: MultiSelectOption[], filter: string): void {
-        this.selectedFilters.update(currentFilters => ({...currentFilters, [filter]: items || []}));
-        this.obtenerDatosReporte();
+        this.selectedFilters.update(currentFilters => ({ ...currentFilters, [filter]: items || [] }));
+        this.cargarDatosIniciales(); 
     }
 
     obtenerAllPlanAccion = (data:any): void => {
@@ -457,6 +635,6 @@ export class ReporteConsolidadoDesempenoComponent {
         }, 100);
         
         // Actualizamos la vista con los filtros limpios
-        this.obtenerDatosReporte();
+        this.cargarDatosIniciales();
     }
 }

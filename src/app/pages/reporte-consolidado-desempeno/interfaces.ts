@@ -74,7 +74,7 @@ export interface RequestReporteConsolidado{
     ProveedorIds: string[] | null | undefined,
     CompradorIds: string[] | null | undefined,
     UnidadProductiva: string[] | null | undefined,
-    Anio: number | null | undefined,
+    Anio: number[] | null | undefined,
     Trimestre: number[] | null | undefined,
     Desempenio: string | null | undefined
     IndicadorCalidad: number | null | undefined

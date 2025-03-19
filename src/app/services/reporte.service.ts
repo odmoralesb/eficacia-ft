@@ -24,15 +24,17 @@ export class ReporteService extends BaseService {
         proveedores: string[] | null | undefined,
         compradores: string[] | null | undefined,
         unidadProductiva: string[] | null | undefined,
-        anio: number | null | undefined,
+        anio: number[] | null | undefined,
         trimestre: number[] | null | undefined,
         desempeno: string | null | undefined,
         indicadorCalidad:number|null, 
         indicadorCantidad:number|null,
         indicadorFecha:number|null,
+        page: number = 1,
+        size: number = 20
     ): Observable<ResponseBase<ReporteConsolidado>> {
         const headers = this.createOptions();
-        let url: string = `${this.urlBase}/Reporte/ObtenerReporteDesempenio?nombreUsuario=${nombreUsuario}`;
+        let url: string = `${this.urlBase}/Reporte/ObtenerReporteDesempenio?nombreUsuario=${nombreUsuario}&Page=${page}&PageSize=${size}`;
         if (proveedores?.length) {
             proveedores.forEach(provId => url += `&ProveedorIds=${provId}`);
         }
@@ -42,8 +44,9 @@ export class ReporteService extends BaseService {
         if (unidadProductiva?.length) {
             unidadProductiva.forEach(up => url += `&UnidadProductiva=${up}`);
         }
-        if (anio) {
-            url += `&Anio=${anio}`
+        if (anio?.length) {
+            //url += `&Anio=${anio}`
+            anio.forEach(a => url += `&Anio=${a}`);
         }
         if (trimestre?.length) {
             trimestre.forEach(trim => url += `&Trimestre=${trim}`);
@@ -78,7 +81,7 @@ export class ReporteService extends BaseService {
         proveedores: string[] | null | undefined,
         compradores: string[] | null | undefined,
         unidadProductiva: string[] | null | undefined,
-        anio: number | null | undefined,
+        anio: number[] | null | undefined,
         trimestre: number[] | null | undefined,
         desempeno: string | null | undefined,
         indicadorCalidad:number|null, 
